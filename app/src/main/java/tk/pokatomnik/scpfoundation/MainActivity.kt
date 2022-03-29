@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import tk.pokatomnik.scpfoundation.page.Page
 import tk.pokatomnik.scpfoundation.pages.PagesList
+import tk.pokatomnik.scpfoundation.pages.PagesProvider
 import tk.pokatomnik.scpfoundation.ui.theme.SCPFoundationTheme
 import tk.pokatomnik.scpfoundation.utils.base64ToString
 import tk.pokatomnik.scpfoundation.utils.stringToBase64
@@ -29,21 +30,23 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "pages") {
-                        composable("pages") {
-                            PagesList { navController.navigate("page/${stringToBase64(it)}") }
-                        }
-                        composable(
-                            "page/{urlBase64}",
-                            arguments = listOf(navArgument("urlBase64") {
-                                type = NavType.StringType
-                            })
-                        ) { backStackEntry ->
-                            val url = backStackEntry.arguments?.getString("urlBase64")?.let {
-                                base64ToString(it)
+                    PagesProvider {
+                        val navController = rememberNavController()
+                        NavHost(navController = navController, startDestination = "pages") {
+                            composable("pages") {
+                                PagesList { navController.navigate("page/${stringToBase64(it)}") }
                             }
-                            Page(url)
+                            composable(
+                                "page/{urlBase64}",
+                                arguments = listOf(navArgument("urlBase64") {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val url = backStackEntry.arguments?.getString("urlBase64")?.let {
+                                    base64ToString(it)
+                                }
+                                Page(url)
+                            }
                         }
                     }
                 }

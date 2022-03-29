@@ -55,15 +55,18 @@ fun rowToPage(tr: Element): PageInfo? {
     )
 }
 
-fun htmlToPages(
-    html: String
-)
-: String {
-//: List<PageInfo> {
-    val document = Jsoup.parse(html)
-    val rows = document.select("tr")
+/**
+ * @param html page html code
+ * @return List with pages if success, null if error (must retry), or empty array if end reached
+ */
+fun htmlToPages(html: String): List<PageInfo>? {
+    val rows = try {
+        val document = Jsoup.parse(html)
+        document.select("tr")
+    } catch (e: Exception) { return null }
 
-    val pages = rows.iterator()
+    // TODO check if next page is the same as previous, It means that end reached.
+    return rows.iterator()
         .asSequence()
         .drop(1)
         .fold(mutableListOf<PageInfo>()) { acc, current ->
@@ -74,8 +77,6 @@ fun htmlToPages(
             acc
         }
         .toList()
-
-    return "Works!"
 }
 
 class PagesConverterFactory : Converter.Factory() {
@@ -83,7 +84,7 @@ class PagesConverterFactory : Converter.Factory() {
         type: Type,
         annotations: Array<out Annotation>,
         retrofit: Retrofit
-    ): Converter<ResponseBody, String> {
+    ): Converter<ResponseBody, List<PageInfo>> {
         return Converter { value ->
             htmlToPages(value.string())
         }
