@@ -63,7 +63,7 @@ fun PagesList(
     ) {
         Column {
             Row { Text(it.name) }
-            Row { Text(it.author) }
+            Row { Text(it.author ?: "") }
         }
     }
 }
