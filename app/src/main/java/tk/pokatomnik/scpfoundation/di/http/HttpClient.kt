@@ -12,11 +12,15 @@ interface PagesService {
 }
 
 class HttpClient {
-    private val retrofit = Retrofit
+    private val pagesRetrofitClient = Retrofit
         .Builder()
-        .baseUrl("http://scp-ru.wikidot.com/")
+        .baseUrl(BASE_URL)
         .addConverterFactory(PagesConverterFactory())
         .build()
 
-    val pagesService: PagesService = retrofit.create(PagesService::class.java)
+    val pagesService: PagesService = pagesRetrofitClient.create(PagesService::class.java)
+
+    private companion object {
+        private const val BASE_URL = "http://scp-ru.wikidot.com/"
+    }
 }

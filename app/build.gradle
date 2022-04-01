@@ -65,4 +65,5 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
     implementation 'org.jsoup:jsoup:1.13.1'
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
 }
