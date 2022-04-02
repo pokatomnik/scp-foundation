@@ -45,7 +45,7 @@ fun PagesProvider(
         if (state.loading) {
             return@DisposableEffect onDispose { }
         }
-        setState(State.loading(state.items))
+        setState(State.loading())
         val request = pagesViewModel.httpClient.pagesService.listPages(pageNumber = pageNumber)
         request.enqueue(object : Callback<List<PageInfo>> {
             override fun onResponse(
