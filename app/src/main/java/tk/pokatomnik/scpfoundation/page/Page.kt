@@ -1,7 +1,8 @@
 package tk.pokatomnik.scpfoundation.page
 
 import android.view.View
-import android.webkit.WebView
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
@@ -9,43 +10,24 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 enum class PageState {
     INITIAL,
     LOADING,
     ERROR,
-    DATA
-}
-
-fun pageStateToVisibility(pageState: PageState): Int {
-    return when (pageState) {
-        PageState.LOADING, PageState.ERROR, PageState.INITIAL -> View.GONE
-        PageState.DATA -> View.VISIBLE
-    }
-}
-
-class WebViewHolder() {
-    private var _webView: WebView? = null
-
-    fun setWebView(webView: WebView) {
-        _webView = webView
-    }
-
-    fun goBack() {
-        if (_webView?.canGoBack() == true) {
-            _webView?.goBack()
-        }
-    }
-
-    fun goForward() {
-        if (_webView?.canGoForward() == true) {
-            _webView?.goForward()
+    DATA;
+    companion object {
+        fun toVisibility(pageState: PageState): Int {
+            return when (pageState) {
+                LOADING, ERROR, INITIAL -> View.GONE
+                DATA -> View.VISIBLE
+            }
         }
     }
 }
@@ -56,6 +38,13 @@ fun Page(url: String?) {
         mutableStateOf(url?.let { PageState.INITIAL } ?: PageState.ERROR)
     }
     val webViewHolder = remember { WebViewHolder() }
+    val (buttonsBarVisible, setButtonsBarVisible) = remember { mutableStateOf(true) }
+//    val heightAnimated: Dp by animateDpAsState(if (buttonsBarVisible) 64.dp else 0.dp)
+    val heightAnimated = remember { Animatable(if (buttonsBarVisible) 64f else 0f) }
+    LaunchedEffect(buttonsBarVisible) {
+        heightAnimated.animateTo(if (buttonsBarVisible) 64f else 0f)
+    }
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.weight(1f)) {
@@ -69,19 +58,21 @@ fun Page(url: String?) {
                     WebViewComposable(
                         url = url,
                         css = css,
-                        visibilityFlag = pageStateToVisibility(pageState),
+                        visibilityFlag = PageState.toVisibility(pageState),
                         onPageLoaded = { setPageState(PageState.DATA) },
                         onPageFailed = { _, _ -> setPageState(PageState.ERROR) },
                         onPageStartLoading = { setPageState(PageState.LOADING) },
-                        onWebViewCreated = { webViewHolder.setWebView(it) }
+                        onWebViewCreated = { webViewHolder.setWebView(it) },
+                        onScrollTop = { setButtonsBarVisible(true) },
+                        onScrollBottom = { setButtonsBarVisible(false) }
                     )
                 }
             }
         }
         Row(
             modifier = Modifier
-                .height(64.dp)
-                .requiredHeight(64.dp),
+                .height(heightAnimated.value.dp)
+                .requiredHeight(heightAnimated.value.dp),
         ) {
             Column(
                 modifier = Modifier
