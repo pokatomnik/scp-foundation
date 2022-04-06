@@ -64,7 +64,7 @@ fun PagesList(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = state.previous) {
+                IconButton(onClick = state.previous, enabled = !state.loading) {
                     Icon(Icons.Filled.SkipPrevious, contentDescription = "Предыдущая страница")
                 }
             }
@@ -73,7 +73,7 @@ fun PagesList(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text((state.pageNumber).toString())
+                Text(state.pageNumber.toString())
             }
             Column(
                 modifier = Modifier
@@ -82,7 +82,7 @@ fun PagesList(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = state.next) {
+                IconButton(onClick = state.next, enabled = !state.loading) {
                     Icon(Icons.Filled.SkipNext, contentDescription = "Следующая страница")
                 }
             }
