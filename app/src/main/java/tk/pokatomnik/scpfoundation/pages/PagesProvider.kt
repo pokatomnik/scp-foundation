@@ -55,7 +55,7 @@ fun PagesProvider(
         )
     ) { mutableStateOf(listOf()) }
 
-    val (pageNumber, setPageNumber) = remember { mutableStateOf(1) }
+    val (pageNumber, setPageNumber) = rememberSaveable { mutableStateOf(1) }
 
     val previous = { setPageNumber(max(1, pageNumber - 1)) }
     val next = { setPageNumber(pageNumber + 1) }
