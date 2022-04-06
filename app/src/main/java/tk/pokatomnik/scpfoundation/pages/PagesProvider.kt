@@ -2,8 +2,6 @@ package tk.pokatomnik.scpfoundation.pages
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.autoSaver
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.hilt.navigation.compose.hiltViewModel
 import retrofit2.Call
@@ -19,7 +17,8 @@ class ContextValue(
     val items: List<PageInfo>,
     val pageNumber: Int,
     val previous: () -> Unit,
-    val next: () -> Unit
+    val next: () -> Unit,
+    val forceRefresh: () -> Unit
 )
 
 val LocalPagesList = compositionLocalOf {
@@ -29,7 +28,8 @@ val LocalPagesList = compositionLocalOf {
         items = listOf(),
         pageNumber = 0,
         previous = {},
-        next = {}
+        next = {},
+        forceRefresh = {}
     )
 }
 
@@ -41,7 +41,7 @@ fun PagesProvider(
 
     val (hasError, setHasError) = rememberSaveable { mutableStateOf(false) }
     val (loading, setLoading) = rememberSaveable { mutableStateOf(false) }
-    var (pages, setPages) = rememberSaveable(
+    val (pages, setPages) = rememberSaveable(
         saver = Saver<MutableState<List<PageInfo>>, List<String>>(
             save = { (pages) ->
                 pages.map { stringify(it) }
@@ -60,15 +60,22 @@ fun PagesProvider(
     val previous = { setPageNumber(max(1, pageNumber - 1)) }
     val next = { setPageNumber(pageNumber + 1) }
 
-    DisposableEffect(pageNumber) {
+    fun refreshByPageNumber(pageNumber: Int, force: Boolean = false): DisposableEffectResult {
         if (loading) {
-            return@DisposableEffect onDispose { }
+            return object : DisposableEffectResult {
+                override fun dispose() { }
+            }
         }
 
         setHasError(false)
         setLoading(true)
 
-        val request = pagesViewModel.httpClient.pagesService.listPages(pageNumber = pageNumber)
+        val request = if (force) {
+            pagesViewModel.httpClient.pagesService.listPagesForce(pageNumber)
+        } else {
+            pagesViewModel.httpClient.pagesService.listPages(pageNumber)
+        }
+
         request.enqueue(object : Callback<List<PageInfo>> {
             override fun onResponse(
                 call: Call<List<PageInfo>>,
@@ -83,10 +90,22 @@ fun PagesProvider(
                 setHasError(true)
             }
         })
-        onDispose {
-            request.cancel()
+
+        return object : DisposableEffectResult {
+            override fun dispose() {
+                request.cancel()
+            }
         }
     }
+
+    val forceRefresh: () -> Unit = {
+        refreshByPageNumber(pageNumber = pageNumber, force = true)
+    }
+
+    DisposableEffect(pageNumber) {
+        refreshByPageNumber(pageNumber)
+    }
+
     CompositionLocalProvider(
         LocalPagesList provides ContextValue(
             hasError = hasError,
@@ -94,7 +113,8 @@ fun PagesProvider(
             items = pages,
             pageNumber = pageNumber,
             next = next,
-            previous = previous
+            previous = previous,
+            forceRefresh = forceRefresh
         )
     ) {
         children()

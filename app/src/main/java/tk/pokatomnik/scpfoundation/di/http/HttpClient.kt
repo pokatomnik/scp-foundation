@@ -18,7 +18,7 @@ class HttpClient {
         .addConverterFactory(PagesConverterFactory())
         .build()
 
-    val pagesService: PagesService = PagesServiceCachingProxy(
+    val pagesService = PagesServiceCachingDecorator(
         pagesRetrofitClient.create(PagesService::class.java)
     )
 

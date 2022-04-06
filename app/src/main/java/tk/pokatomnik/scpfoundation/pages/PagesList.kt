@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.components.LazyList
 
 
@@ -21,25 +23,30 @@ fun PagesList(
     onSelectURL: (url: String) -> Unit,
 ) {
     val state = LocalPagesList.current
+    val scrollRefreshState = rememberSwipeRefreshState(state.loading)
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.weight(1f)) {
             Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
-                if (state.loading) {
-                    CircularProgressIndicator()
-                }
-                LazyList(
-                    list = state.items,
-                    onClick = { onSelectURL(it.url) },
-                    disabled = state.loading
+                SwipeRefresh(
+                    state = scrollRefreshState,
+                    onRefresh = { state.forceRefresh() },
+                    modifier = Modifier.fillMaxSize(),
+                    swipeEnabled = !state.loading
                 ) {
-                    Column {
-                        Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                        Row {
-                            Text(
-                                it.author ?: "(Автор неизвестен)",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                    LazyList(
+                        list = state.items,
+                        onClick = { onSelectURL(it.url) },
+                        disabled = state.loading
+                    ) {
+                        Column {
+                            Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                            Row {
+                                Text(
+                                    it.author ?: "(Автор неизвестен)",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }

@@ -67,4 +67,5 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.accompanist:accompanist-swiperefresh:0.23.1'
 }
