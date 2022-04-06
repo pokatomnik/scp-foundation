@@ -1,16 +1,14 @@
 package tk.pokatomnik.scpfoundation.pages
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -25,6 +23,21 @@ fun PagesList(
     val state = LocalPagesList.current
     val scrollRefreshState = rememberSwipeRefreshState(state.loading)
     Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .height(64.dp)
+                .requiredHeight(64.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                style = MaterialTheme.typography.h4,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                text = "Список документов"
+            )
+        }
         Row(modifier = Modifier.weight(1f)) {
             Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
                 SwipeRefresh(
