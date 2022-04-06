@@ -8,7 +8,7 @@ import tk.pokatomnik.scpfoundation.pages.PageInfo
 
 interface PagesService {
     @GET("fragment%3Atop-rated-by-year-0/p/{pageNumber}")
-    fun listPages(@Path ("pageNumber") pageNumber: Int): Call<List<PageInfo>>
+    fun listPages(@Path("pageNumber") pageNumber: Int): Call<List<PageInfo>>
 }
 
 class HttpClient {
@@ -18,7 +18,9 @@ class HttpClient {
         .addConverterFactory(PagesConverterFactory())
         .build()
 
-    val pagesService: PagesService = pagesRetrofitClient.create(PagesService::class.java)
+    val pagesService: PagesService = PagesServiceCachingProxy(
+        pagesRetrofitClient.create(PagesService::class.java)
+    )
 
     private companion object {
         private const val BASE_URL = "http://scp-ru.wikidot.com/"

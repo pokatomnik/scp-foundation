@@ -1,28 +1,30 @@
 package tk.pokatomnik.scpfoundation.pages
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.autoSaver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.hilt.navigation.compose.hiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import tk.pokatomnik.scpfoundation.utils.parse
+import tk.pokatomnik.scpfoundation.utils.stringify
 import kotlin.math.max
 
 class ContextValue(
-    error: Throwable?,
-    loading: Boolean,
-    items: List<PageInfo>,
+    val hasError: Boolean,
+    val loading: Boolean,
+    val items: List<PageInfo>,
     val pageNumber: Int,
     val previous: () -> Unit,
     val next: () -> Unit
-) : State(
-    error,
-    loading,
-    items
 )
 
 val LocalPagesList = compositionLocalOf {
     ContextValue(
-        error = null,
+        hasError = false,
         loading = false,
         items = listOf(),
         pageNumber = 0,
@@ -36,27 +38,49 @@ fun PagesProvider(
     children: @Composable () -> Unit
 ) {
     val pagesViewModel = hiltViewModel<PagesViewModel>()
-    val (state, setState) = remember { mutableStateOf(State.initial()) }
+
+    val (hasError, setHasError) = rememberSaveable { mutableStateOf(false) }
+    val (loading, setLoading) = rememberSaveable { mutableStateOf(false) }
+    var (pages, setPages) = rememberSaveable(
+        saver = Saver<MutableState<List<PageInfo>>, List<String>>(
+            save = { (pages) ->
+                pages.map { stringify(it) }
+            },
+            restore = { pageJsons ->
+                val pages = pageJsons.map {
+                    parse<PageInfoImpl>(it)
+                }
+                mutableStateOf(pages)
+            }
+        )
+    ) { mutableStateOf(listOf()) }
+
     val (pageNumber, setPageNumber) = remember { mutableStateOf(1) }
+
     val previous = { setPageNumber(max(1, pageNumber - 1)) }
     val next = { setPageNumber(pageNumber + 1) }
 
     DisposableEffect(pageNumber) {
-        if (state.loading) {
+        if (loading) {
             return@DisposableEffect onDispose { }
         }
-        setState(State.loading())
+
+        setHasError(false)
+        setLoading(true)
+
         val request = pagesViewModel.httpClient.pagesService.listPages(pageNumber = pageNumber)
         request.enqueue(object : Callback<List<PageInfo>> {
             override fun onResponse(
                 call: Call<List<PageInfo>>,
                 response: Response<List<PageInfo>>
             ) {
-                setState(State.data(items = response.body() ?: listOf()))
+                setPages(response.body() ?: listOf())
+                setLoading(false)
             }
 
             override fun onFailure(call: Call<List<PageInfo>>, t: Throwable) {
-                setState(State.error(t, state.items))
+                setLoading(false)
+                setHasError(true)
             }
         })
         onDispose {
@@ -65,9 +89,9 @@ fun PagesProvider(
     }
     CompositionLocalProvider(
         LocalPagesList provides ContextValue(
-            error = state.error,
-            loading = state.loading,
-            items = state.items,
+            hasError = hasError,
+            loading = loading,
+            items = pages,
             pageNumber = pageNumber,
             next = next,
             previous = previous
