@@ -7,6 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import tk.pokatomnik.scpfoundation.di.preferences.PreferencesContainer
 import tk.pokatomnik.scpfoundation.utils.parse
 import tk.pokatomnik.scpfoundation.utils.stringify
 import kotlin.math.max
@@ -55,7 +56,13 @@ fun PagesProvider(
         )
     ) { mutableStateOf(listOf()) }
 
-    val (pageNumber, setPageNumber) = rememberSaveable { mutableStateOf(1) }
+    val (pageNumber, setPageNumber) = rememberSaveable {
+        mutableStateOf(pagesViewModel.preferencesContainer.pagesPreferences.getSavedPage())
+    }
+
+    LaunchedEffect(pageNumber) {
+        pagesViewModel.preferencesContainer.pagesPreferences.savePage(pageNumber)
+    }
 
     val previous = { setPageNumber(max(1, pageNumber - 1)) }
     val next = { setPageNumber(pageNumber + 1) }
