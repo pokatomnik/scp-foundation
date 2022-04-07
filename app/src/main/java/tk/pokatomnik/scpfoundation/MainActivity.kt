@@ -4,12 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.List
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,26 +33,74 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SCPFoundationTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    PagesProvider {
-                        val navController = rememberNavController()
-                        NavHost(navController = navController, startDestination = "pages") {
-                            composable("pages") {
-                                PagesList { navController.navigate("page/${stringToBase64(it)}") }
-                            }
-                            composable(
-                                "page/{urlBase64}",
-                                arguments = listOf(navArgument("urlBase64") {
-                                    type = NavType.StringType
-                                })
-                            ) { backStackEntry ->
-                                val url = backStackEntry.arguments?.getString("urlBase64")?.let {
-                                    base64ToString(it)
+                val navController = rememberNavController()
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigation {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentDestination = navBackStackEntry?.destination
+                            BottomNavigationItem(
+                                selected = currentDestination?.hierarchy?.any { it.route === "pages" } == true,
+                                onClick = {
+                                    navController.navigate("pages") {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(Icons.Filled.List, contentDescription = "Документы") },
+                                label = { Text("Документы") },
+                            )
+                            BottomNavigationItem(
+                                selected = currentDestination?.hierarchy?.any { it.route === "favorites" } == true,
+                                onClick = {
+                                    navController.navigate("favorites") {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Избранное") },
+                                label = { Text("Избранное") },
+                            )
+                        }
+                    }
+                ) { innerPadding ->
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colors.background
+                    ) {
+                        PagesProvider {
+                            NavHost(navController = navController, startDestination = "pages", Modifier.padding(innerPadding)) {
+                                composable(route = "pages") {
+                                    PagesList {
+                                        navController.navigate("page/${stringToBase64(it)}") {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    }
                                 }
-                                Page(url)
+                                composable(
+                                    route = "page/{urlBase64}",
+                                    arguments = listOf(navArgument("urlBase64") {
+                                        type = NavType.StringType
+                                    })
+                                ) { backStackEntry ->
+                                    val url = backStackEntry.arguments?.getString("urlBase64")?.let {
+                                        base64ToString(it)
+                                    }
+                                    Page(url)
+                                }
+                                composable(route = "favorites") {
+                                    Text("This is favorites")
+                                }
                             }
                         }
                     }

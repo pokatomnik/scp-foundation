@@ -5,8 +5,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import retrofit2.Converter
 import retrofit2.Retrofit
-import tk.pokatomnik.scpfoundation.pages.PageInfo
-import tk.pokatomnik.scpfoundation.pages.PageInfoImpl
+import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import java.lang.Exception
 import java.lang.reflect.Type
 

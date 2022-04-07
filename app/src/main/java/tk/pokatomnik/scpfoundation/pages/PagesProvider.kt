@@ -7,7 +7,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import tk.pokatomnik.scpfoundation.di.preferences.PreferencesContainer
+import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.utils.parse
 import tk.pokatomnik.scpfoundation.utils.stringify
 import kotlin.math.max

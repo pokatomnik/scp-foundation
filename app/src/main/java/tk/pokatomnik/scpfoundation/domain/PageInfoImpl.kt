@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.domain
 
 class PageInfoImpl(
     override val name: String,
