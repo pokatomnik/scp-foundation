@@ -1,11 +1,10 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.di.db
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import tk.pokatomnik.scpfoundation.di.db.Database
 import javax.inject.Inject
 
 @HiltViewModel
-class LazyPagesListViewModel @Inject constructor(
+class DatabaseViewModel @Inject constructor(
     val database: Database
 ) : ViewModel()

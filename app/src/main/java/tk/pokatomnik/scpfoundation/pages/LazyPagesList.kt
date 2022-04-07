@@ -12,12 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 import tk.pokatomnik.scpfoundation.components.LazyList
 import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
+import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 
 @Composable
@@ -28,14 +28,15 @@ fun LazyPagesList(
     onSelectURL: (url: String) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
-    val pagesViewModel = hiltViewModel<LazyPagesListViewModel>()
+
     val scrollRefreshState = rememberSwipeRefreshState(loading)
     val favoritesState = remember { mutableStateListOf<String>() }
+    val database = rememberDatabase()
 
     LaunchedEffect(items) {
         scope.launch {
             val ids = items.map { it.url }.toTypedArray()
-            val favorites = pagesViewModel.database.favoritesDAO().getByURLs(ids)
+            val favorites = database.favoritesDAO().getByURLs(ids)
             favoritesState.addAll(favorites.map { it.url }.toList())
         }
     }
@@ -43,14 +44,14 @@ fun LazyPagesList(
     fun addFavorite(pageInfo: PageInfo) {
         favoritesState.add(pageInfo.url)
         scope.launch {
-            pagesViewModel.database.favoritesDAO().add(Favorite(pageInfo))
+            database.favoritesDAO().add(Favorite(pageInfo))
         }
     }
 
     fun removeFavorite(pageInfo: PageInfo) {
         favoritesState.remove(pageInfo.url)
         scope.launch {
-            pagesViewModel.database.favoritesDAO().deleteByURL(pageInfo.url)
+            database.favoritesDAO().deleteByURL(pageInfo.url)
         }
     }
 
