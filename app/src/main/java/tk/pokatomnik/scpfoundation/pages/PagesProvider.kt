@@ -39,7 +39,7 @@ val LocalPagesList = compositionLocalOf {
 fun PagesProvider(
     children: @Composable () -> Unit
 ) {
-    val pagesViewModel = hiltViewModel<PagesViewModel>()
+    val pagesViewModel = hiltViewModel<PagesProviderViewModel>()
 
     val (hasError, setHasError) = rememberSaveable { mutableStateOf(false) }
     val (loading, setLoading) = rememberSaveable { mutableStateOf(false) }
