@@ -28,5 +28,10 @@ class SCPWebViewClient(
     ) {
         super.onReceivedError(view, request, error)
         onPageFailed?.invoke(request, error)
+        view?.apply {
+            loadUrl("about:blank")
+            loadDataWithBaseURL(null, ERROR_HTML, "text/html", "UTF-8", null)
+            invalidate()
+        }
     }
 }
