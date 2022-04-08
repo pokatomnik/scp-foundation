@@ -4,7 +4,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
-import tk.pokatomnik.scpfoundation.pages.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PageInfo
 
 interface PagesService {
     @GET("fragment%3Atop-rated-by-year-0/p/{pageNumber}")

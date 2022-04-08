@@ -7,7 +7,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import tk.pokatomnik.scpfoundation.di.preferences.PreferencesContainer
+import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
+import tk.pokatomnik.scpfoundation.di.preferences.rememberPreferences
+import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.utils.parse
 import tk.pokatomnik.scpfoundation.utils.stringify
 import kotlin.math.max
@@ -38,7 +41,8 @@ val LocalPagesList = compositionLocalOf {
 fun PagesProvider(
     children: @Composable () -> Unit
 ) {
-    val pagesViewModel = hiltViewModel<PagesViewModel>()
+    val httpClient = rememberHttpClient()
+    val preferencesContainer = rememberPreferences()
 
     val (hasError, setHasError) = rememberSaveable { mutableStateOf(false) }
     val (loading, setLoading) = rememberSaveable { mutableStateOf(false) }
@@ -57,11 +61,11 @@ fun PagesProvider(
     ) { mutableStateOf(listOf()) }
 
     val (pageNumber, setPageNumber) = rememberSaveable {
-        mutableStateOf(pagesViewModel.preferencesContainer.pagesPreferences.getSavedPage())
+        mutableStateOf(preferencesContainer.pagesPreferences.getSavedPage())
     }
 
     LaunchedEffect(pageNumber) {
-        pagesViewModel.preferencesContainer.pagesPreferences.savePage(pageNumber)
+        preferencesContainer.pagesPreferences.savePage(pageNumber)
     }
 
     val previous = { setPageNumber(max(1, pageNumber - 1)) }
@@ -78,9 +82,9 @@ fun PagesProvider(
         setLoading(true)
 
         val request = if (force) {
-            pagesViewModel.httpClient.pagesService.listPagesForce(pageNumber)
+            httpClient.pagesService.listPagesForce(pageNumber)
         } else {
-            pagesViewModel.httpClient.pagesService.listPages(pageNumber)
+            httpClient.pagesService.listPages(pageNumber)
         }
 
         request.enqueue(object : Callback<List<PageInfo>> {

@@ -4,7 +4,7 @@ import okhttp3.Request
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import tk.pokatomnik.scpfoundation.pages.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PageInfo
 import java.util.concurrent.ConcurrentHashMap
 
 data class OnResponseCallbackArgs(
