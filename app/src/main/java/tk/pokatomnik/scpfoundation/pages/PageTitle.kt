@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun Title(title: String) {
+fun PageTitle(title: String) {
     Text(
         style = MaterialTheme.typography.h4,
         textAlign = TextAlign.Center,

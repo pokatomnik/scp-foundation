@@ -1,6 +1,9 @@
 package tk.pokatomnik.scpfoundation.favorites
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -10,6 +13,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -20,7 +24,7 @@ import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
-import tk.pokatomnik.scpfoundation.pages.Title
+import tk.pokatomnik.scpfoundation.pages.PageTitle
 
 @Composable
 fun FavoritesList(onSelectURL: (url: String) -> Unit) {
@@ -34,7 +38,8 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
 
     fun refresh() {
         scope.launch {
-            val favorites: List<PageInfo> = database.favoritesDAO().getAll().map { PageInfoImpl(it) }
+            val favorites: List<PageInfo> =
+                database.favoritesDAO().getAll().map { PageInfoImpl(it) }
             setPages(favorites)
         }
     }
@@ -66,32 +71,42 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .height(64.dp)
-                .requiredHeight(64.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+    SwipeRefresh(
+        state = scrollRefreshState,
+        onRefresh = { refresh() },
+        modifier = Modifier.fillMaxSize(),
+        swipeEnabled = true
         ) {
-            Title(title = "Избранное")
-        }
-        Row(modifier = Modifier.weight(1f)) {
-            Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
-                SwipeRefresh(
-                    state = scrollRefreshState,
-                    onRefresh = { refresh() },
-                    modifier = Modifier.fillMaxSize(),
-                    swipeEnabled = true
-                ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Row(
+                modifier = Modifier
+                    .height(64.dp)
+                    .requiredHeight(64.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                PageTitle(title = "Избранное")
+            }
+            Row(modifier = Modifier.weight(1f)) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     LazyList(
                         list = pages,
                         onClick = { onSelectURL(it.url) },
                     ) {
                         Row {
                             Column(modifier = Modifier.weight(1f)) {
-                                Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                                Row {
+                                    Text(
+                                        it.name,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                                 Row {
                                     Text(
                                         it.author ?: "(Автор неизвестен)",
@@ -100,9 +115,11 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
                                     )
                                 }
                             }
-                            Column(modifier = Modifier
-                                .requiredWidth(48.dp)
-                                .width(48.dp)) {
+                            Column(
+                                modifier = Modifier
+                                    .requiredWidth(48.dp)
+                                    .width(48.dp)
+                            ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
