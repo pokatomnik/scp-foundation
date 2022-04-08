@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun Title() {
+fun Title(title: String) {
     Text(
         style = MaterialTheme.typography.h4,
         textAlign = TextAlign.Center,
         maxLines = 1,
-        text = "Список документов"
+        text = title
     )
 }

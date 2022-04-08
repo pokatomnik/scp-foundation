@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import tk.pokatomnik.scpfoundation.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.page.Page
 import tk.pokatomnik.scpfoundation.pages.PagesList
 import tk.pokatomnik.scpfoundation.pages.PagesProvider
@@ -99,7 +100,15 @@ class MainActivity : ComponentActivity() {
                                     Page(url)
                                 }
                                 composable(route = "favorites") {
-                                    Text("This is favorites")
+                                    FavoritesList(onSelectURL = {
+                                        navController.navigate("page/${stringToBase64(it)}") {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
+                                    })
                                 }
                             }
                         }

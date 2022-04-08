@@ -21,7 +21,7 @@ fun PagesList(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Title()
+            Title(title = "Список документов")
         }
         Row(modifier = Modifier.weight(1f)) {
             Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
