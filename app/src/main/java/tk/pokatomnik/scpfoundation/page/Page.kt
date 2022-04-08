@@ -33,18 +33,19 @@ enum class PageState {
 }
 
 @Composable
-fun Page(url: String?) {
+fun Page(
+    url: String?,
+    navigateBack: () -> Unit
+) {
     val (pageState, setPageState) = remember(url) {
         mutableStateOf(url?.let { PageState.INITIAL } ?: PageState.ERROR)
     }
     val webViewHolder = remember { WebViewHolder() }
     val (buttonsBarVisible, setButtonsBarVisible) = remember { mutableStateOf(true) }
-//    val heightAnimated: Dp by animateDpAsState(if (buttonsBarVisible) 64.dp else 0.dp)
     val heightAnimated = remember { Animatable(if (buttonsBarVisible) 64f else 0f) }
     LaunchedEffect(buttonsBarVisible) {
         heightAnimated.animateTo(if (buttonsBarVisible) 64f else 0f)
     }
-
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.weight(1f)) {
@@ -81,7 +82,7 @@ fun Page(url: String?) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = { webViewHolder.goBack() }) {
+                IconButton(onClick = { webViewHolder.goBack(navigateBack) }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Назад")
                 }
             }

@@ -8,9 +8,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun PagesList(
-    onSelectURL: (url: String) -> Unit,
-) {
+fun PagesList(onSelectURL: (url: String) -> Unit) {
     val state = LocalPagesList.current
     Column(modifier = Modifier.fillMaxSize()) {
         Row(

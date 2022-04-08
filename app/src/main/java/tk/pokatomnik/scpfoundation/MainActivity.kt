@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                         PagesProvider {
                             NavHost(navController = navController, startDestination = "pages", Modifier.padding(innerPadding)) {
                                 composable(route = "pages") {
-                                    PagesList {
+                                    PagesList(onSelectURL = {
                                         navController.navigate("page/${stringToBase64(it)}") {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                             launchSingleTop = true
                                             restoreState = true
                                         }
-                                    }
+                                    })
                                 }
                                 composable(
                                     route = "page/{urlBase64}",
@@ -97,7 +97,10 @@ class MainActivity : ComponentActivity() {
                                     val url = backStackEntry.arguments?.getString("urlBase64")?.let {
                                         base64ToString(it)
                                     }
-                                    Page(url)
+                                    Page(
+                                        url = url,
+                                        navigateBack = { navController.popBackStack() }
+                                    )
                                 }
                                 composable(route = "favorites") {
                                     FavoritesList(onSelectURL = {

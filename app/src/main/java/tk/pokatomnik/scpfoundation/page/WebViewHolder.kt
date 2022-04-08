@@ -9,9 +9,11 @@ class WebViewHolder() {
         _webView = webView
     }
 
-    fun goBack() {
+    fun goBack(navigateBack: () -> Unit) {
         if (_webView?.canGoBack() == true) {
             _webView?.goBack()
+        } else {
+            navigateBack()
         }
     }
 
