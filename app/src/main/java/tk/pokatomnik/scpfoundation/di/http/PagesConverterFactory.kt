@@ -7,13 +7,17 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
+import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 import java.lang.Exception
 import java.lang.reflect.Type
 
-fun rowToPage(tr: Element): PageInfo? {
+private fun rowToPage(tr: Element): PageInfo? {
     val cells = try {
         tr.select("td")
-    } catch (e: Exception) { return null }
+    } catch (e: Exception) {
+        return null
+    }
 
     lateinit var nameCell: Element
     lateinit var ratingCell: Element
@@ -38,13 +42,19 @@ fun rowToPage(tr: Element): PageInfo? {
 
     val rating = try {
         ratingCell.text().toInt()
-    } catch (e: Exception) { null }
+    } catch (e: Exception) {
+        null
+    }
     val author = try {
         authorCell.select("span").select("a")[1].text()
-    } catch (e: Exception) { null }
+    } catch (e: Exception) {
+        null
+    }
     val date = try {
         dateCell.select("span").text()
-    } catch (e: Exception) { null }
+    } catch (e: Exception) {
+        null
+    }
 
     return PageInfoImpl(
         name = name,
@@ -59,16 +69,18 @@ fun rowToPage(tr: Element): PageInfo? {
  * @param html page html code
  * @return List with pages if success, null if error (must retry), or empty array if end reached
  */
-fun htmlToPages(html: String): List<PageInfo>? {
-    val rows = try {
-        val document = Jsoup.parse(html)
-        document.select("tr")
-    } catch (e: Exception) { return null }
+private fun htmlToPages(html: String): PagedResponse? {
+    val document = try {
+        Jsoup.parse(html)
+    } catch (e: Exception) {
+        return null
+    }
 
-    // TODO check if next page is the same as previous, It means that end reached.
-    return rows.iterator()
-        .asSequence()
-        .drop(1)
+    val pagesList = try {
+        document.select("tr")
+    } catch (e: Exception) {
+        return null
+    }.iterator().asSequence().drop(1)
         .fold(mutableListOf<PageInfo>()) { acc, current ->
             val pageInfo = rowToPage(current)
             if (pageInfo != null) {
@@ -77,6 +89,18 @@ fun htmlToPages(html: String): List<PageInfo>? {
             acc
         }
         .toList()
+
+    val (minPage, maxPage) = try {
+        val (_, minPage, _, maxPage) = document
+            .select("span.pager-no")[0].text().split(" ")
+        listOf(minPage.toInt(), maxPage.toInt())
+    } catch (e: Exception) { listOf(1, 1) }
+
+    return PagedResponseImpl(
+        pages = pagesList,
+        minPage = minPage,
+        maxPage = maxPage
+    )
 }
 
 class PagesConverterFactory : Converter.Factory() {
@@ -84,7 +108,7 @@ class PagesConverterFactory : Converter.Factory() {
         type: Type,
         annotations: Array<out Annotation>,
         retrofit: Retrofit
-    ): Converter<ResponseBody, List<PageInfo>> {
+    ): Converter<ResponseBody, PagedResponse> {
         return Converter { value ->
             htmlToPages(value.string())
         }

@@ -26,16 +26,17 @@ fun PagesList(onSelectURL: (url: String) -> Unit) {
                 LazyPagesList(
                     loading = state.loading,
                     forceRefresh = state.forceRefresh,
-                    items = state.items,
+                    pagedResponse = state.pagedResponse,
                     onSelectURL = onSelectURL,
                 )
             }
         }
         NavigationButtons(
-            pageNumber = state.pageNumber,
+            currentPage = state.pageNumber,
             onNextClick = state.next,
             onPreviousClick = state.previous,
-            loading = state.loading
+            loading = state.loading,
+            maxPage = state.pagedResponse.maxPage
         )
     }
 }

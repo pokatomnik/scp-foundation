@@ -17,7 +17,8 @@ fun NavigationButtons(
     onPreviousClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
     loading: Boolean = false,
-    pageNumber: Int,
+    currentPage: Int,
+    maxPage: Int,
 ) {
     Row(
         modifier = Modifier
@@ -40,7 +41,7 @@ fun NavigationButtons(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(pageNumber.toString())
+            Text("$currentPage из $maxPage")
         }
         Column(
             modifier = Modifier

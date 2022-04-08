@@ -5,10 +5,11 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
 import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
 
 interface PagesService {
     @GET("fragment%3Atop-rated-by-year-0/p/{pageNumber}")
-    fun listPages(@Path("pageNumber") pageNumber: Int): Call<List<PageInfo>>
+    fun listPages(@Path("pageNumber") pageNumber: Int): Call<PagedResponse>
 }
 
 class HttpClient {

@@ -4,39 +4,39 @@ import okhttp3.Request
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import java.util.concurrent.ConcurrentHashMap
 
 data class OnResponseCallbackArgs(
-    val call: Call<List<PageInfo>>,
-    val response: Response<List<PageInfo>>
+    val call: Call<PagedResponse>,
+    val response: Response<PagedResponse>
 )
 
 class PagesServiceCachingDecorator(private val pagesService: PagesService) : PagesService {
     private val pagesCache: MutableMap<Int, OnResponseCallbackArgs> = ConcurrentHashMap()
 
-    fun listPagesForce(pageNumber: Int): Call<List<PageInfo>> {
+    fun listPagesForce(pageNumber: Int): Call<PagedResponse> {
         val call = pagesService.listPages(pageNumber)
-        return object : Call<List<PageInfo>> {
-            override fun clone(): Call<List<PageInfo>> {
+        return object : Call<PagedResponse> {
+            override fun clone(): Call<PagedResponse> {
                 return call.clone()
             }
 
-            override fun execute(): Response<List<PageInfo>> {
+            override fun execute(): Response<PagedResponse> {
                 throw Throwable("Don't even try!")
             }
 
-            override fun enqueue(callback: Callback<List<PageInfo>>) {
-                call.enqueue(object : Callback<List<PageInfo>> {
+            override fun enqueue(callback: Callback<PagedResponse>) {
+                call.enqueue(object : Callback<PagedResponse> {
                     override fun onResponse(
-                        call: Call<List<PageInfo>>,
-                        response: Response<List<PageInfo>>
+                        call: Call<PagedResponse>,
+                        response: Response<PagedResponse>
                     ) {
                         pagesCache[pageNumber] = OnResponseCallbackArgs(call, response)
                         callback.onResponse(call, response)
                     }
 
-                    override fun onFailure(call: Call<List<PageInfo>>, t: Throwable) {
+                    override fun onFailure(call: Call<PagedResponse>, t: Throwable) {
                         return callback.onFailure(call, t)
                     }
                 })
@@ -60,33 +60,33 @@ class PagesServiceCachingDecorator(private val pagesService: PagesService) : Pag
         }
     }
 
-    override fun listPages(pageNumber: Int): Call<List<PageInfo>> {
+    override fun listPages(pageNumber: Int): Call<PagedResponse> {
         val call = pagesService.listPages(pageNumber)
-        return object : Call<List<PageInfo>> {
-            override fun clone(): Call<List<PageInfo>> {
+        return object : Call<PagedResponse> {
+            override fun clone(): Call<PagedResponse> {
                 return call.clone()
             }
 
-            override fun execute(): Response<List<PageInfo>> {
+            override fun execute(): Response<PagedResponse> {
                 throw Throwable("Don't even try!")
             }
 
-            override fun enqueue(callback: Callback<List<PageInfo>>) {
+            override fun enqueue(callback: Callback<PagedResponse>) {
                 val onResponseArgs = pagesCache[pageNumber]
                 if (onResponseArgs != null) {
                     callback.onResponse(onResponseArgs.call, onResponseArgs.response)
                     return
                 }
-                call.enqueue(object : Callback<List<PageInfo>> {
+                call.enqueue(object : Callback<PagedResponse> {
                     override fun onResponse(
-                        call: Call<List<PageInfo>>,
-                        response: Response<List<PageInfo>>
+                        call: Call<PagedResponse>,
+                        response: Response<PagedResponse>
                     ) {
                         pagesCache[pageNumber] = OnResponseCallbackArgs(call, response)
                         callback.onResponse(call, response)
                     }
 
-                    override fun onFailure(call: Call<List<PageInfo>>, t: Throwable) {
+                    override fun onFailure(call: Call<PagedResponse>, t: Throwable) {
                         return callback.onFailure(call, t)
                     }
                 })
