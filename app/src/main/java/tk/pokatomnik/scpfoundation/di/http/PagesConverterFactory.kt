@@ -90,15 +90,15 @@ private fun htmlToPages(html: String): PagedResponse? {
         }
         .toList()
 
-    val (minPage, maxPage) = try {
-        val (_, minPage, _, maxPage) = document
+    val maxPage = try {
+        val (_, _, _, maxPage) = document
             .select("span.pager-no")[0].text().split(" ")
-        listOf(minPage.toInt(), maxPage.toInt())
-    } catch (e: Exception) { listOf(1, 1) }
+        maxPage.toInt()
+    } catch (e: Exception) { 1 }
 
     return PagedResponseImpl(
         pages = pagesList,
-        minPage = minPage,
+        minPage = 1,
         maxPage = maxPage
     )
 }
