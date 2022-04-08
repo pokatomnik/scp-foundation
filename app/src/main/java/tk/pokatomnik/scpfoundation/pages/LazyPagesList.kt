@@ -19,12 +19,13 @@ import tk.pokatomnik.scpfoundation.components.LazyList
 import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
 
 @Composable
 fun LazyPagesList(
     loading: Boolean = false,
     forceRefresh: () -> Unit = {},
-    items: List<PageInfo>,
+    pagedResponse: PagedResponse,
     onSelectURL: (url: String) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
@@ -33,9 +34,9 @@ fun LazyPagesList(
     val favoritesState = remember { mutableStateListOf<String>() }
     val database = rememberDatabase()
 
-    LaunchedEffect(items) {
+    LaunchedEffect(pagedResponse.pages) {
         scope.launch {
-            val ids = items.map { it.url }.toTypedArray()
+            val ids = pagedResponse.pages.map { it.url }.toTypedArray()
             val favorites = database.favoritesDAO().getByURLs(ids)
             favoritesState.addAll(favorites.map { it.url }.toList())
         }
@@ -62,7 +63,7 @@ fun LazyPagesList(
         swipeEnabled = !loading
     ) {
         LazyList(
-            list = items,
+            list = pagedResponse.pages,
             onClick = { onSelectURL(it.url) },
             disabled = loading,
         ) {

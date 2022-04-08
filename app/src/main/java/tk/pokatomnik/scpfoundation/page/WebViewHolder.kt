@@ -2,7 +2,7 @@ package tk.pokatomnik.scpfoundation.page
 
 import android.webkit.WebView
 
-class WebViewHolder() {
+class WebViewHolder {
     private var _webView: WebView? = null
 
     fun setWebView(webView: WebView) {

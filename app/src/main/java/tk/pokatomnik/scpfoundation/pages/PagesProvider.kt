@@ -1,24 +1,22 @@
 package tk.pokatomnik.scpfoundation.pages
 
+import android.widget.Toast
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.di.preferences.rememberPreferences
-import tk.pokatomnik.scpfoundation.domain.PageInfo
-import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
-import tk.pokatomnik.scpfoundation.utils.parse
-import tk.pokatomnik.scpfoundation.utils.stringify
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
+import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 import kotlin.math.max
+import kotlin.math.min
 
 class ContextValue(
     val hasError: Boolean,
     val loading: Boolean,
-    val items: List<PageInfo>,
+    val pagedResponse: PagedResponse,
     val pageNumber: Int,
     val previous: () -> Unit,
     val next: () -> Unit,
@@ -29,7 +27,7 @@ val LocalPagesList = compositionLocalOf {
     ContextValue(
         hasError = false,
         loading = false,
-        items = listOf(),
+        pagedResponse = PagedResponseImpl(),
         pageNumber = 0,
         previous = {},
         next = {},
@@ -41,26 +39,15 @@ val LocalPagesList = compositionLocalOf {
 fun PagesProvider(
     children: @Composable () -> Unit
 ) {
+    val context = LocalContext.current;
     val httpClient = rememberHttpClient()
     val preferencesContainer = rememberPreferences()
 
-    val (hasError, setHasError) = rememberSaveable { mutableStateOf(false) }
-    val (loading, setLoading) = rememberSaveable { mutableStateOf(false) }
-    val (pages, setPages) = rememberSaveable(
-        saver = Saver<MutableState<List<PageInfo>>, List<String>>(
-            save = { (pages) ->
-                pages.map { stringify(it) }
-            },
-            restore = { pageJsons ->
-                val pages = pageJsons.map {
-                    parse<PageInfoImpl>(it)
-                }
-                mutableStateOf(pages)
-            }
-        )
-    ) { mutableStateOf(listOf()) }
+    val (hasError, setHasError) = remember { mutableStateOf(false) }
+    val (loading, setLoading) = remember { mutableStateOf(false) }
+    val (pages, setPages) = remember { mutableStateOf<PagedResponse>(PagedResponseImpl()) }
 
-    val (pageNumber, setPageNumber) = rememberSaveable {
+    val (pageNumber, setPageNumber) = remember {
         mutableStateOf(preferencesContainer.pagesPreferences.getSavedPage())
     }
 
@@ -68,13 +55,27 @@ fun PagesProvider(
         preferencesContainer.pagesPreferences.savePage(pageNumber)
     }
 
-    val previous = { setPageNumber(max(1, pageNumber - 1)) }
-    val next = { setPageNumber(pageNumber + 1) }
+    val previous = {
+        val previousPage = max(pages.minPage, pageNumber - 1)
+        if (previousPage == pageNumber) {
+            Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show();
+        } else {
+            setPageNumber(previousPage)
+        }
+    }
+    val next = {
+        val nextPage = min(pages.maxPage, pageNumber + 1);
+        if (nextPage == pageNumber) {
+            Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show();
+        } else {
+            setPageNumber(nextPage)
+        }
+    }
 
     fun refreshByPageNumber(pageNumber: Int, force: Boolean = false): DisposableEffectResult {
         if (loading) {
             return object : DisposableEffectResult {
-                override fun dispose() { }
+                override fun dispose() {}
             }
         }
 
@@ -87,16 +88,16 @@ fun PagesProvider(
             httpClient.pagesService.listPages(pageNumber)
         }
 
-        request.enqueue(object : Callback<List<PageInfo>> {
+        request.enqueue(object : Callback<PagedResponse> {
             override fun onResponse(
-                call: Call<List<PageInfo>>,
-                response: Response<List<PageInfo>>
+                call: Call<PagedResponse>,
+                response: Response<PagedResponse>
             ) {
-                setPages(response.body() ?: listOf())
+                setPages(response.body() ?: PagedResponseImpl())
                 setLoading(false)
             }
 
-            override fun onFailure(call: Call<List<PageInfo>>, t: Throwable) {
+            override fun onFailure(call: Call<PagedResponse>, t: Throwable) {
                 setLoading(false)
                 setHasError(true)
             }
@@ -121,7 +122,7 @@ fun PagesProvider(
         LocalPagesList provides ContextValue(
             hasError = hasError,
             loading = loading,
-            items = pages,
+            pagedResponse = pages,
             pageNumber = pageNumber,
             next = next,
             previous = previous,
