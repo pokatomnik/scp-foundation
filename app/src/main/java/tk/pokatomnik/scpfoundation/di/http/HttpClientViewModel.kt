@@ -5,6 +5,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class HttpClientViewModel @Inject constructor(
+internal class HttpClientViewModel @Inject constructor(
     val httpClient: HttpClient
 ) : ViewModel()

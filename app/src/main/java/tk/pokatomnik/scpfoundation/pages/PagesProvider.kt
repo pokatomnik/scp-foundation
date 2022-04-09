@@ -13,7 +13,7 @@ import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 import kotlin.math.max
 import kotlin.math.min
 
-class ContextValue(
+internal class ContextValue(
     val hasError: Boolean,
     val loading: Boolean,
     val pagedResponse: PagedResponse,
@@ -23,7 +23,7 @@ class ContextValue(
     val forceRefresh: () -> Unit
 )
 
-val LocalPagesList = compositionLocalOf {
+internal val LocalPagesList = compositionLocalOf {
     ContextValue(
         hasError = false,
         loading = false,

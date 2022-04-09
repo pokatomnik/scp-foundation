@@ -5,7 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-fun debounce(
+private fun debounce(
     waitMs: Long = 300L,
     coroutineScope: CoroutineScope,
     destinationFunction: () -> Unit
@@ -20,7 +20,7 @@ fun debounce(
     }
 }
 
-class ScrollHolder(private val coroutineScope: CoroutineScope) {
+internal class ScrollHolder(private val coroutineScope: CoroutineScope) {
     private var value: Int? = null
 
     private var _onScrollTop: () -> Unit = {}

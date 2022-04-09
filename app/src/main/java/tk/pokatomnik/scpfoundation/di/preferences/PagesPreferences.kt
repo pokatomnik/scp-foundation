@@ -5,7 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import kotlin.math.max
 
-class PagesScope(context: Context) : SCPPreferences {
+private class PagesScope(context: Context) : SCPPreferences {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("preferences.pages", MODE_PRIVATE)
 

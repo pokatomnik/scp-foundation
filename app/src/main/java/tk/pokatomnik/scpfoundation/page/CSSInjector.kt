@@ -2,7 +2,7 @@ package tk.pokatomnik.scpfoundation.page
 
 import android.webkit.WebView
 
-fun injectCSS(webView: WebView, css: String, onDone : (e : Error?) -> Unit) {
+internal fun injectCSS(webView: WebView, css: String, onDone : (e : Error?) -> Unit) {
     val cssClean = css.trim().replace("\n", " ")
 
     if (cssClean == "") {

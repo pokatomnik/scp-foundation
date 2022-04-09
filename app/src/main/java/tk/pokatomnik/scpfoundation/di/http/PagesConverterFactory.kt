@@ -103,7 +103,7 @@ private fun htmlToPages(html: String): PagedResponse? {
     )
 }
 
-class PagesConverterFactory : Converter.Factory() {
+internal class PagesConverterFactory : Converter.Factory() {
     override fun responseBodyConverter(
         type: Type,
         annotations: Array<out Annotation>,

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NavigationButtons(
+internal fun NavigationButtons(
     onPreviousClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
     loading: Boolean = false,

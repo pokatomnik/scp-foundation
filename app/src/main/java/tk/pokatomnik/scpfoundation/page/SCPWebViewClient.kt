@@ -3,7 +3,7 @@ package tk.pokatomnik.scpfoundation.page
 import android.graphics.Bitmap
 import android.webkit.*
 
-class SCPWebViewClient(
+internal class SCPWebViewClient(
     private val onLoadStart: (() -> Unit)?,
     private val onLoadEnd: (() -> Unit)?,
 ) : WebViewClient() {

@@ -18,7 +18,7 @@ class BooleanHolder(var value: Boolean)
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewComposable(
+internal fun WebViewComposable(
     css: String?,
     textZoom: Int = 150,
     url: String,

@@ -20,7 +20,7 @@ import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 
 @Composable
-fun LazyPagesList(
+internal fun LazyPagesList(
     loading: Boolean = false,
     pagedResponse: PagedResponse,
     onSelectURL: (url: String) -> Unit = {}

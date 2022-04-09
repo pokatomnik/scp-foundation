@@ -1,6 +1,6 @@
 package tk.pokatomnik.scpfoundation.page
 
-val css = """
+internal val css = """
     /* Hide those elements */
     #header { display: none !important; }
     #container-wrap { background: transparent !important; }
