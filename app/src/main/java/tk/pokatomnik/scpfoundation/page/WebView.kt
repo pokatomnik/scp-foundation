@@ -25,10 +25,6 @@ fun WebViewComposable(
     visibilityFlag: Int,
     onPageStartLoading: () -> Unit,
     onPageLoaded: () -> Unit,
-    onPageFailed: (
-        request: WebResourceRequest?,
-        error: WebResourceError?
-    ) -> Unit,
     onWebViewCreated: (webView: WebView) -> Unit,
     onScrollTop: () -> Unit = {},
     onScrollBottom: () -> Unit = {}
@@ -47,7 +43,6 @@ fun WebViewComposable(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            visibility = visibilityFlag
             settings.domStorageEnabled = true
             settings.javaScriptEnabled = true
             settings.textZoom = textZoom
@@ -62,9 +57,8 @@ fun WebViewComposable(
             }
 
             webViewClient = SCPWebViewClient(
-                onPageStartLoading = onPageStartLoading,
-                onPageFailed = onPageFailed,
-                onPageLoaded = {
+                onLoadStart = onPageStartLoading,
+                onLoadEnd = {
                     injectCSS(this, css ?: "") { onPageLoaded() }
                 }
             )

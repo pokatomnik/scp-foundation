@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                                         base64ToString(it)
                                     }
                                     Page(
-                                        url = url,
+                                        url = url ?: "",
                                         navigateBack = { navController.popBackStack() }
                                     )
                                 }
