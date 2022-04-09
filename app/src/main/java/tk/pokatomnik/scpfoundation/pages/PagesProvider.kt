@@ -39,7 +39,7 @@ val LocalPagesList = compositionLocalOf {
 fun PagesProvider(
     children: @Composable () -> Unit
 ) {
-    val context = LocalContext.current;
+    val context = LocalContext.current
     val httpClient = rememberHttpClient()
     val preferencesContainer = rememberPreferences()
 
@@ -58,15 +58,15 @@ fun PagesProvider(
     val previous = {
         val previousPage = max(pages.minPage, pageNumber - 1)
         if (previousPage == pageNumber) {
-            Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
         } else {
             setPageNumber(previousPage)
         }
     }
     val next = {
-        val nextPage = min(pages.maxPage, pageNumber + 1);
+        val nextPage = min(pages.maxPage, pageNumber + 1)
         if (nextPage == pageNumber) {
-            Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
         } else {
             setPageNumber(nextPage)
         }
@@ -100,6 +100,9 @@ fun PagesProvider(
             override fun onFailure(call: Call<PagedResponse>, t: Throwable) {
                 setLoading(false)
                 setHasError(true)
+                setPages(PagedResponseImpl())
+                setPageNumber(1)
+                Toast.makeText(context, "Ошибка загрузки документов, попробуйте позднее", Toast.LENGTH_SHORT).show()
             }
         })
 

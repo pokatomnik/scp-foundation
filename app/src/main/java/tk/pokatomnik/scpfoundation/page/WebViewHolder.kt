@@ -22,4 +22,8 @@ class WebViewHolder {
             _webView?.goForward()
         }
     }
+
+    fun reload() {
+        _webView?.reload()
+    }
 }
