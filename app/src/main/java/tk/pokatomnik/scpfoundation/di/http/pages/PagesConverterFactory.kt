@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.di.http
+package tk.pokatomnik.scpfoundation.di.http.pages
 
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup

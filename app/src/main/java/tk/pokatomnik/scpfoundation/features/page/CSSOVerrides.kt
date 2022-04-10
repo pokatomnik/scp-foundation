@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.page
+package tk.pokatomnik.scpfoundation.features.page
 
 internal val css = """
     /* Hide those elements */

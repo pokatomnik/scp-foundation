@@ -20,13 +20,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
-import tk.pokatomnik.scpfoundation.favorites.FavoritesList
-import tk.pokatomnik.scpfoundation.page.Page
-import tk.pokatomnik.scpfoundation.pages.PagesList
-import tk.pokatomnik.scpfoundation.pages.PagesProvider
+import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
+import tk.pokatomnik.scpfoundation.features.page.Page
+import tk.pokatomnik.scpfoundation.features.pages.MainPagesByRatingProvider
+import tk.pokatomnik.scpfoundation.features.pages.PagesList
 import tk.pokatomnik.scpfoundation.ui.theme.SCPFoundationTheme
-import tk.pokatomnik.scpfoundation.utils.base64ToString
-import tk.pokatomnik.scpfoundation.utils.stringToBase64
+import tk.pokatomnik.scpfoundation.utils.deserializeFromURLFriendly
+import tk.pokatomnik.scpfoundation.utils.serializeToURLFriendly
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -48,10 +48,14 @@ class MainActivity : ComponentActivity() {
                                             saveState = true
                                         }
                                         launchSingleTop = true
-                                        restoreState = true
                                     }
                                 },
-                                icon = { Icon(Icons.Filled.List, contentDescription = "Документы") },
+                                icon = {
+                                    Icon(
+                                        Icons.Filled.List,
+                                        contentDescription = "Документы"
+                                    )
+                                },
                                 label = { Text("Документы") },
                             )
                             BottomNavigationItem(
@@ -62,10 +66,14 @@ class MainActivity : ComponentActivity() {
                                             saveState = true
                                         }
                                         launchSingleTop = true
-                                        restoreState = true
                                     }
                                 },
-                                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Избранное") },
+                                icon = {
+                                    Icon(
+                                        Icons.Filled.Favorite,
+                                        contentDescription = "Избранное"
+                                    )
+                                },
                                 label = { Text("Избранное") },
                             )
                         }
@@ -75,43 +83,48 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colors.background
                     ) {
-                        PagesProvider {
-                            NavHost(navController = navController, startDestination = "pages", Modifier.padding(innerPadding)) {
+                        MainPagesByRatingProvider {
+                            NavHost(
+                                navController = navController,
+                                startDestination = "pages",
+                                Modifier.padding(innerPadding)
+                            ) {
                                 composable(route = "pages") {
-                                    PagesList(onSelectURL = {
-                                        navController.navigate("page/${stringToBase64(it)}") {
+                                    PagesList(
+                                        title = "Список документов",
+                                        onSelectURL = {
+                                            navController.navigate("page/${serializeToURLFriendly(it)}") {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        })
+                                }
+                                composable(route = "favorites") {
+                                    FavoritesList(onSelectURL = {
+                                        navController.navigate("page/${serializeToURLFriendly(it)}") {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
                                             }
                                             launchSingleTop = true
-                                            restoreState = true
                                         }
                                     })
                                 }
                                 composable(
-                                    route = "page/{urlBase64}",
-                                    arguments = listOf(navArgument("urlBase64") {
+                                    route = "page/{urlURLFriendly}",
+                                    arguments = listOf(navArgument("urlURLFriendly") {
                                         type = NavType.StringType
                                     })
                                 ) { backStackEntry ->
-                                    val url = backStackEntry.arguments?.getString("urlBase64")?.let {
-                                        base64ToString(it)
-                                    }
+                                    val url =
+                                        backStackEntry.arguments?.getString("urlURLFriendly")?.let {
+                                            deserializeFromURLFriendly(it)
+                                        }
                                     Page(
                                         url = url ?: "",
                                         navigateBack = { navController.popBackStack() }
                                     )
-                                }
-                                composable(route = "favorites") {
-                                    FavoritesList(onSelectURL = {
-                                        navController.navigate("page/${stringToBase64(it)}") {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    })
                                 }
                             }
                         }

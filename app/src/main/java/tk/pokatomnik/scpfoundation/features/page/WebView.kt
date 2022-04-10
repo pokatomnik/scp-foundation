@@ -1,10 +1,8 @@
-package tk.pokatomnik.scpfoundation.page
+package tk.pokatomnik.scpfoundation.features.page
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

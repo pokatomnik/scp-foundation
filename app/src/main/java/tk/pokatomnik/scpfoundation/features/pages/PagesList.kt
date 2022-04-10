@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.features.pages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,9 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 
 @Composable
-fun PagesList(onSelectURL: (url: String) -> Unit) {
+fun PagesList(
+    title: String,
+    onSelectURL: (url: String) -> Unit
+) {
     val state = LocalPagesList.current
     val scrollRefreshState = rememberSwipeRefreshState(state.loading)
 
@@ -33,7 +37,7 @@ fun PagesList(onSelectURL: (url: String) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                PageTitle(title = "Список документов")
+                PageTitle(title = title)
             }
             Row(modifier = Modifier.weight(1f)) {
                 Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
