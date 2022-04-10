@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class PreferencesModule {
+internal class PreferencesModule {
     @Singleton
     @Provides
     fun providePreferences(@ApplicationContext context: Context): PreferencesContainer {

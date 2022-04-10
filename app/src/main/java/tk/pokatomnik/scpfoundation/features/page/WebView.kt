@@ -1,10 +1,8 @@
-package tk.pokatomnik.scpfoundation.page
+package tk.pokatomnik.scpfoundation.features.page
 
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -18,7 +16,7 @@ class BooleanHolder(var value: Boolean)
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewComposable(
+internal fun WebViewComposable(
     css: String?,
     textZoom: Int = 150,
     url: String,

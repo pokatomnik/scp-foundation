@@ -1,6 +1,5 @@
-package tk.pokatomnik.scpfoundation.favorites
+package tk.pokatomnik.scpfoundation.features.favorites
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -24,7 +22,7 @@ import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
-import tk.pokatomnik.scpfoundation.pages.PageTitle
+import tk.pokatomnik.scpfoundation.features.pages.PageTitle
 
 @Composable
 fun FavoritesList(onSelectURL: (url: String) -> Unit) {

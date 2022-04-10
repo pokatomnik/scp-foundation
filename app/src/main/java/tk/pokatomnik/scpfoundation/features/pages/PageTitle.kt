@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.features.pages
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun PageTitle(title: String) {
+internal fun PageTitle(title: String) {
     Text(
         style = MaterialTheme.typography.h4,
         textAlign = TextAlign.Center,

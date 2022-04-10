@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.features.pages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NavigationButtons(
+internal fun NavigationButtons(
     onPreviousClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
     loading: Boolean = false,

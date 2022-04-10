@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.di.http
+package tk.pokatomnik.scpfoundation.di.http.pages
 
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
@@ -103,7 +103,7 @@ private fun htmlToPages(html: String): PagedResponse? {
     )
 }
 
-class PagesConverterFactory : Converter.Factory() {
+internal class PagesConverterFactory : Converter.Factory() {
     override fun responseBodyConverter(
         type: Type,
         annotations: Array<out Annotation>,

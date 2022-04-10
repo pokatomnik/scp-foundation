@@ -7,7 +7,7 @@ import retrofit2.Response
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import java.util.concurrent.ConcurrentHashMap
 
-data class OnResponseCallbackArgs(
+private data class OnResponseCallbackArgs(
     val call: Call<PagedResponse>,
     val response: Response<PagedResponse>
 )

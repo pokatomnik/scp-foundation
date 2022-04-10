@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.features.pages
 
 import android.widget.Toast
 import androidx.compose.runtime.*
@@ -10,33 +10,13 @@ import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.di.preferences.rememberPreferences
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
+import tk.pokatomnik.scpfoundation.features.pagescontext.ContextValue
+import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 import kotlin.math.max
 import kotlin.math.min
 
-class ContextValue(
-    val hasError: Boolean,
-    val loading: Boolean,
-    val pagedResponse: PagedResponse,
-    val pageNumber: Int,
-    val previous: () -> Unit,
-    val next: () -> Unit,
-    val forceRefresh: () -> Unit
-)
-
-val LocalPagesList = compositionLocalOf {
-    ContextValue(
-        hasError = false,
-        loading = false,
-        pagedResponse = PagedResponseImpl(),
-        pageNumber = 0,
-        previous = {},
-        next = {},
-        forceRefresh = {}
-    )
-}
-
 @Composable
-fun PagesProvider(
+fun MainPagesByRatingProvider(
     children: @Composable () -> Unit
 ) {
     val context = LocalContext.current

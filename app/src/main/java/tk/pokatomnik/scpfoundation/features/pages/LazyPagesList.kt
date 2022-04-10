@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.pages
+package tk.pokatomnik.scpfoundation.features.pages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -20,7 +20,7 @@ import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 
 @Composable
-fun LazyPagesList(
+internal fun LazyPagesList(
     loading: Boolean = false,
     pagedResponse: PagedResponse,
     onSelectURL: (url: String) -> Unit = {}
