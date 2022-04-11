@@ -3,6 +3,7 @@ package tk.pokatomnik.scpfoundation.di.http
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import tk.pokatomnik.scpfoundation.di.http.pages.PagesConverterFactory
@@ -14,6 +15,11 @@ interface PagesService {
     fun listPages(@Path("pageNumber") pageNumber: Int): Call<PagedResponse>
 }
 
+interface TagsService {
+    @GET("_api/wikidot_tags_search/list?wiki=scp-ru")
+    fun listTags(): Call<List<String>>
+}
+
 class HttpClient {
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(1, TimeUnit.MINUTES)
@@ -23,17 +29,26 @@ class HttpClient {
 
     private val pagesRetrofitClient = Retrofit
         .Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(WEBSITE_URL)
         .client(okHttpClient)
         .addConverterFactory(PagesConverterFactory())
+        .build()
+
+    private val tagsRetrofitService = Retrofit
+        .Builder()
+        .baseUrl(API_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     val pagesService = PagesServiceCachingDecorator(
         pagesRetrofitClient.create(PagesService::class.java)
     )
 
+    val tagsService = tagsRetrofitService.create(TagsService::class.java)
 
     private companion object {
-        private const val BASE_URL = "http://scp-ru.wikidot.com/"
+        private const val WEBSITE_URL = "http://scp-ru.wikidot.com/"
+        private const val API_URL = "https://m.scpfoundation.net/"
     }
 }

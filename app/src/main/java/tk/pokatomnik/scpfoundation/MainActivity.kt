@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -24,6 +25,7 @@ import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.features.page.Page
 import tk.pokatomnik.scpfoundation.features.pages.MainPagesByRatingProvider
 import tk.pokatomnik.scpfoundation.features.pages.PagesList
+import tk.pokatomnik.scpfoundation.features.tags.Tags
 import tk.pokatomnik.scpfoundation.ui.theme.SCPFoundationTheme
 import tk.pokatomnik.scpfoundation.utils.deserializeFromURLFriendly
 import tk.pokatomnik.scpfoundation.utils.serializeToURLFriendly
@@ -76,6 +78,24 @@ class MainActivity : ComponentActivity() {
                                 },
                                 label = { Text("Избранное") },
                             )
+                            BottomNavigationItem(
+                                selected = currentDestination?.hierarchy?.any { it.route === "tags" } == true,
+                                onClick = {
+                                    navController.navigate("tags") {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        Icons.Filled.Tag,
+                                        contentDescription = "Теги"
+                                    )
+                                },
+                                label = { Text("Теги") },
+                            )
                         }
                     }
                 ) { innerPadding ->
@@ -125,6 +145,11 @@ class MainActivity : ComponentActivity() {
                                         url = url ?: "",
                                         navigateBack = { navController.popBackStack() }
                                     )
+                                }
+                                composable(
+                                    route = "tags"
+                                ) {
+                                    Tags()
                                 }
                             }
                         }
