@@ -43,14 +43,15 @@ val colorsMap: MutableMap<String, Pair<Color, Color>> = ConcurrentHashMap()
 fun memoizeAndGetColor(title: String): Pair<Color, Color> {
     val existing = colorsMap[title]
     return existing ?: colorsMap.let {
-        val rb = (0..100).random()
-        val gb = (0..100).random()
-        val bb = (0..100).random()
+        val rb = (180..255).random()
+        val gb = (180..255).random()
+        val bb = (180..255).random()
         val background = Color(rb, gb, bb)
         val rf = 255 - rb
         val gf = 255 - gb
         val bf = 255 - bb
-        val foreground = Color(rf, gf, bf)
+        val grey = ((rf + gf + bf) / 3)
+        val foreground = Color(grey, grey, grey)
         val pair = background to foreground
         colorsMap[title] = pair
         pair
