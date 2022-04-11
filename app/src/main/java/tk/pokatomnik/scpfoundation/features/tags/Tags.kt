@@ -1,14 +1,13 @@
 package tk.pokatomnik.scpfoundation.features.tags
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -23,35 +22,56 @@ import tk.pokatomnik.scpfoundation.features.pages.PageTitle
 
 @Composable
 fun Tags() {
-    val scrollRefreshState = rememberSwipeRefreshState(false)
+    val context = LocalContext.current
     val httpClient = rememberHttpClient()
 
     val tags = remember { mutableStateListOf<String>() }
+    val loadingState = remember { mutableStateOf(false) }
+    val scrollRefreshState = rememberSwipeRefreshState(loadingState.value)
 
-    DisposableEffect(Unit) {
-        val request = httpClient.tagsService.listTags()
+    fun loadTags(force: Boolean): DisposableEffectResult {
+        if (loadingState.value) {
+            return object : DisposableEffectResult {
+                override fun dispose() {}
+            }
+        }
+        loadingState.value = true
+
+        val request = if (force) {
+            httpClient.tagsService.getDataForce(Unit)
+        } else {
+            httpClient.tagsService.getData(Unit)
+        }
+
         request.enqueue(object : Callback<List<String>> {
             override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
-                tags.clear()
-                val tagsList = response.body() ?: listOf()
-                tags.addAll(tagsList)
+                tags.apply {
+                    clear()
+                    addAll(response.body() ?: listOf())
+                }
+                loadingState.value = false
             }
 
             override fun onFailure(call: Call<List<String>>, t: Throwable) {
-                val error = t
+                Toast.makeText(context, "Невозможно загрузить список тегов, попробуйте позднее", Toast.LENGTH_SHORT).show()
+                loadingState.value = false
             }
 
         })
-        onDispose {
-            request.cancel()
+        return object : DisposableEffectResult {
+            override fun dispose() {
+                return request.cancel()
+            }
         }
     }
 
+    DisposableEffect(Unit) { loadTags(false) }
+
     SwipeRefresh(
         state = scrollRefreshState,
-        onRefresh = { /*TODO*/ },
+        onRefresh = { loadTags(true) },
         modifier = Modifier.fillMaxSize(),
-        swipeEnabled = true,
+        swipeEnabled = !loadingState.value,
         indicatorPadding = PaddingValues(top = 80.dp)
     ) {
         Column(
@@ -74,7 +94,7 @@ fun Tags() {
                     Column(modifier = Modifier.padding(5.dp)) {
                         ChipComponent(
                             props = ChipComponentProps(
-                                text = tag
+                                text = "#$tag"
                             )
                         )
                     }

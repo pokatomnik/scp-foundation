@@ -42,10 +42,32 @@ class HttpClient {
         .build()
 
     val pagesService = PagesServiceCachingDecorator(
-        pagesRetrofitClient.create(PagesService::class.java)
+        object: DataFetchingService<Int, PagedResponse> {
+            private val client = pagesRetrofitClient.create(PagesService::class.java)
+
+            override fun getData(params: Int): Call<PagedResponse> {
+                return client.listPages(params)
+            }
+
+            override fun serializeParams(params: Int): String {
+                return params.toString()
+            }
+        }
     )
 
-    val tagsService = tagsRetrofitService.create(TagsService::class.java)
+    val tagsService = PagesServiceCachingDecorator(
+        object : DataFetchingService<Unit, List<String>> {
+            private val client = tagsRetrofitService.create(TagsService::class.java)
+
+            override fun getData(params: Unit): Call<List<String>> {
+                return client.listTags()
+            }
+
+            override fun serializeParams(params: Unit): String {
+                return "RESPONSE_SINGLE"
+            }
+        }
+    )
 
     private companion object {
         private const val WEBSITE_URL = "http://scp-ru.wikidot.com/"
