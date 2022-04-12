@@ -1,10 +1,12 @@
 package tk.pokatomnik.scpfoundation.features.tags
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,14 +22,15 @@ import tk.pokatomnik.scpfoundation.components.ChipComponent
 import tk.pokatomnik.scpfoundation.components.ChipComponentProps
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.features.pages.PageTitle
+import java.lang.Integer.min
 
 @Composable
 fun Tags() {
     val context = LocalContext.current
     val httpClient = rememberHttpClient()
 
-    val tags = remember { mutableMapOf<String, Any?>() }
-    val selectedTags = remember { mutableMapOf<String, Any?>() }
+    val (tags, setTags) = remember { mutableStateOf(setOf<String>()) }
+    val (selectedTags, setSelectedTags) = remember { mutableStateOf(setOf<String>()) }
 
     val loadingState = remember { mutableStateOf(false) }
 
@@ -50,15 +53,18 @@ fun Tags() {
         request.enqueue(object : Callback<List<String>> {
             override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
                 tags.apply {
-                    clear()
-                    val pairs = (response.body() ?: listOf()).map { it to null }
-                    putAll(pairs)
+                    val pairs = (response.body() ?: listOf()).toSet()
+                    setTags(pairs)
                 }
                 loadingState.value = false
             }
 
             override fun onFailure(call: Call<List<String>>, t: Throwable) {
-                Toast.makeText(context, "Невозможно загрузить список тегов, попробуйте позднее", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Невозможно загрузить список тегов, попробуйте позднее",
+                    Toast.LENGTH_SHORT
+                ).show()
                 loadingState.value = false
             }
 
@@ -96,34 +102,60 @@ fun Tags() {
             }
             if (selectedTags.isNotEmpty()) {
                 FlowRow(modifier = Modifier.padding(vertical = 10.dp)) {
-                    for (tag in tags.keys) {
+                    val sortedTags = selectedTags.asSequence().sortedWith { a, b ->
+                        a.lowercase().compareTo(b.lowercase())
+                    }
+                    for (tag in sortedTags.toList().slice(0..kotlin.math.min(
+                        10,
+                        sortedTags.toList().size
+                    )
+                    )) {
                         Column(modifier = Modifier.padding(5.dp)) {
-                            ChipComponent(
-                                props = ChipComponentProps(
-                                    text = "#$tag",
-                                    onClick = {
-                                        selectedTags.remove(tag)
-                                        tags[tag] = null
-                                    }
+                            Text(modifier = Modifier.clickable(onClick = {
+                                setSelectedTags(
+                                    selectedTags.toMutableSet().apply { remove(tag) }
                                 )
-                            )
+                                setTags(tags.toMutableSet().apply { add(tag) })
+                            }), text = tag)
+//                            ChipComponent(
+//                                props = ChipComponentProps(
+//                                    text = "#$tag",
+//                                    onClick = {
+//                                        setSelectedTags(
+//                                            selectedTags.toMutableSet().apply { remove(tag) }
+//                                        )
+//                                        setTags(tags.toMutableSet().apply { add(tag) })
+//                                    }
+//                                )
+//                            )
                         }
                     }
                 }
                 Divider()
             }
             FlowRow(modifier = Modifier.padding(vertical = 10.dp)) {
-                for (tag in tags.keys) {
+                val sortedTags = tags.asSequence().sortedWith { a, b ->
+                    a.lowercase().compareTo(b.lowercase())
+                }.toList()
+                for (tag in (if (sortedTags.isNotEmpty()) sortedTags.toList().slice(0..10) else sortedTags)) {
                     Column(modifier = Modifier.padding(5.dp)) {
-                        ChipComponent(
-                            props = ChipComponentProps(
-                                text = "#$tag",
-                                onClick = {
-                                    selectedTags[tag] = null
-                                    tags.remove(tag)
-                                }
+                        Text(modifier = Modifier.clickable(onClick = {
+                            setSelectedTags(
+                                selectedTags.toMutableSet().apply { remove(tag) }
                             )
-                        )
+                            setTags(tags.toMutableSet().apply { add(tag) })
+                        }), text = tag)
+//                        ChipComponent(
+//                            props = ChipComponentProps(
+//                                text = "#$tag",
+//                                onClick = {
+//                                    setSelectedTags(
+//                                        selectedTags.toMutableSet().apply { add(tag) }
+//                                    )
+//                                    setTags(tags.toMutableSet().apply { remove(tag) })
+//                                }
+//                            )
+//                        )
                     }
                 }
             }
