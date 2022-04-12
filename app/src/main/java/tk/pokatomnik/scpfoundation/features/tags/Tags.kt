@@ -1,7 +1,9 @@
 package tk.pokatomnik.scpfoundation.features.tags
 
 import android.widget.Toast
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +48,7 @@ fun Tags() {
 
     val (tagsList, setTagsList) = remember { mutableStateOf(setOf<String>()) }
     val (selectedTags, setSelectedTags) = remember { mutableStateOf(setOf<String>()) }
+    val heightAnimated by animateDpAsState(targetValue = if (selectedTags.isNotEmpty()) 48.dp else 0.dp)
 
     val loadingState = remember { mutableStateOf(false) }
 
@@ -107,6 +110,30 @@ fun Tags() {
         ) {
             PageTitle(title = "Поиск тегов")
         }
+        Row(
+            modifier = Modifier
+                .height(heightAnimated)
+                .requiredHeight(heightAnimated)
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(10.dp))
+            for (tag in selectedTags) {
+                ChipComponent(
+                    props = ChipComponentProps(
+                        modifier = Modifier.padding(5.dp),
+                        maxChars = 50,
+                        text = "#$tag",
+                        onClick = {
+                            setSelectedTags(selectedTags.toMutableSet().apply { remove(tag) })
+                            setTagsList(tagsList.toMutableSet().apply { add(tag) })
+                        }
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+        }
         Row(modifier = Modifier
             .weight(1f)
             .fillMaxWidth()) {
@@ -129,14 +156,19 @@ fun Tags() {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(text = key)
                                 Divider(modifier = Modifier.padding(bottom = 10.dp))
-                                FlowRow(modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
+                                FlowRow(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 10.dp)) {
                                     for (tag in tagsByKey) {
                                         ChipComponent(
                                             props = ChipComponentProps(
                                                 modifier = Modifier.padding(5.dp),
                                                 maxChars = 50,
                                                 text = "#$tag",
-                                                onClick = {}
+                                                onClick = {
+                                                    setSelectedTags(selectedTags.toMutableSet().apply { add(tag) })
+                                                    setTagsList(tagsList.toMutableSet().apply { remove(tag) })
+                                                }
                                             )
                                         )
                                     }
