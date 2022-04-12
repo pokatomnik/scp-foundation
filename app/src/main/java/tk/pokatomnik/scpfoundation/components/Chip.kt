@@ -64,7 +64,7 @@ fun ChipComponent(
     @PreviewParameter(ChipComponentPropsPreviewParameterProvider::class) props: ChipComponentProps,
 ) {
     Row(
-        modifier = Modifier
+        modifier = props.modifier
             .border(
                 border = ButtonDefaults.outlinedBorder,
                 shape = RoundedCornerShape(8.dp)
