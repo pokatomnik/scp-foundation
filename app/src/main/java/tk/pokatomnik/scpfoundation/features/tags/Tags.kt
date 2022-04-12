@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,8 +26,11 @@ fun Tags() {
     val context = LocalContext.current
     val httpClient = rememberHttpClient()
 
-    val tags = remember { mutableStateListOf<String>() }
+    val tags = remember { mutableMapOf<String, Any?>() }
+    val selectedTags = remember { mutableMapOf<String, Any?>() }
+
     val loadingState = remember { mutableStateOf(false) }
+
     val scrollRefreshState = rememberSwipeRefreshState(loadingState.value)
 
     fun loadTags(force: Boolean): DisposableEffectResult {
@@ -47,7 +51,8 @@ fun Tags() {
             override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
                 tags.apply {
                     clear()
-                    addAll(response.body() ?: listOf())
+                    val pairs = (response.body() ?: listOf()).map { it to null }
+                    putAll(pairs)
                 }
                 loadingState.value = false
             }
@@ -89,12 +94,34 @@ fun Tags() {
             ) {
                 PageTitle(title = "Поиск тегов")
             }
+            if (selectedTags.isNotEmpty()) {
+                FlowRow(modifier = Modifier.padding(vertical = 10.dp)) {
+                    for (tag in tags.keys) {
+                        Column(modifier = Modifier.padding(5.dp)) {
+                            ChipComponent(
+                                props = ChipComponentProps(
+                                    text = "#$tag",
+                                    onClick = {
+                                        selectedTags.remove(tag)
+                                        tags[tag] = null
+                                    }
+                                )
+                            )
+                        }
+                    }
+                }
+                Divider()
+            }
             FlowRow(modifier = Modifier.padding(vertical = 10.dp)) {
-                for (tag in tags) {
+                for (tag in tags.keys) {
                     Column(modifier = Modifier.padding(5.dp)) {
                         ChipComponent(
                             props = ChipComponentProps(
-                                text = "#$tag"
+                                text = "#$tag",
+                                onClick = {
+                                    selectedTags[tag] = null
+                                    tags.remove(tag)
+                                }
                             )
                         )
                     }

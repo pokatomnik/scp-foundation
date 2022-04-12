@@ -42,7 +42,7 @@ class HttpClient {
         .build()
 
     val pagesService = PagesServiceCachingDecorator(
-        object: DataFetchingService<Int, PagedResponse> {
+        object : DataFetchingService<Int, PagedResponse> {
             private val client = pagesRetrofitClient.create(PagesService::class.java)
 
             override fun getData(params: Int): Call<PagedResponse> {
@@ -64,7 +64,7 @@ class HttpClient {
             }
 
             override fun serializeParams(params: Unit): String {
-                return "RESPONSE_SINGLE"
+                return "SINGLE"
             }
         }
     )
