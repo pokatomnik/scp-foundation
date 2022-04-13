@@ -2,13 +2,14 @@ package tk.pokatomnik.scpfoundation.features.tags
 
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,12 +24,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import tk.pokatomnik.scpfoundation.components.ChipComponent
 import tk.pokatomnik.scpfoundation.components.ChipComponentProps
-import tk.pokatomnik.scpfoundation.components.LazyList
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.features.pages.PageTitle
-import java.lang.Integer.min
 
 fun groupTags(list: Collection<String>): Map<String, List<String>> {
     return list.fold(mutableMapOf<String, MutableList<String>>()) { map, current ->
@@ -50,19 +47,19 @@ fun Tags() {
     val (selectedTags, setSelectedTags) = remember { mutableStateOf(setOf<String>()) }
     val heightAnimated by animateDpAsState(targetValue = if (selectedTags.isNotEmpty()) 48.dp else 0.dp)
 
-    val loadingState = remember { mutableStateOf(false) }
+    val (loadingState, setLoadingState) = remember { mutableStateOf(false) }
 
-    val scrollRefreshState = rememberSwipeRefreshState(loadingState.value)
+    val scrollRefreshState = rememberSwipeRefreshState(loadingState)
 
     val tagsGrouped = remember(tagsList) { groupTags(tagsList) }
 
     fun loadTags(force: Boolean): DisposableEffectResult {
-        if (loadingState.value) {
+        if (loadingState) {
             return object : DisposableEffectResult {
                 override fun dispose() {}
             }
         }
-        loadingState.value = true
+        setLoadingState(true)
 
         val request = if (force) {
             httpClient.tagsService.getDataForce(Unit)
@@ -74,10 +71,10 @@ fun Tags() {
             override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
                 val pairs = (response.body() ?: listOf()).toSet()
                 tagsList.apply {
-
                     setTagsList(pairs)
                 }
-                loadingState.value = false
+                setLoadingState(false)
+                setSelectedTags(setOf())
             }
 
             override fun onFailure(call: Call<List<String>>, t: Throwable) {
@@ -86,7 +83,7 @@ fun Tags() {
                     "Невозможно загрузить список тегов, попробуйте позднее",
                     Toast.LENGTH_SHORT
                 ).show()
-                loadingState.value = false
+                setLoadingState(false)
             }
 
         })
@@ -134,14 +131,17 @@ fun Tags() {
             }
             Spacer(modifier = Modifier.width(10.dp))
         }
-        Row(modifier = Modifier
-            .weight(1f)
-            .fillMaxWidth()) {
+        Divider(modifier = Modifier.fillMaxWidth())
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
             SwipeRefresh(
                 state = scrollRefreshState,
                 onRefresh = { loadTags(true) },
                 modifier = Modifier.fillMaxHeight(),
-                swipeEnabled = !loadingState.value,
+                swipeEnabled = !loadingState,
             ) {
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
                     items(tagsGrouped.entries.toList()) {
@@ -156,9 +156,11 @@ fun Tags() {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(text = key)
                                 Divider(modifier = Modifier.padding(bottom = 10.dp))
-                                FlowRow(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 10.dp)) {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 10.dp)
+                                ) {
                                     for (tag in tagsByKey) {
                                         ChipComponent(
                                             props = ChipComponentProps(
@@ -166,8 +168,12 @@ fun Tags() {
                                                 maxChars = 50,
                                                 text = "#$tag",
                                                 onClick = {
-                                                    setSelectedTags(selectedTags.toMutableSet().apply { add(tag) })
-                                                    setTagsList(tagsList.toMutableSet().apply { remove(tag) })
+                                                    setSelectedTags(
+                                                        selectedTags.toMutableSet()
+                                                            .apply { add(tag) })
+                                                    setTagsList(
+                                                        tagsList.toMutableSet()
+                                                            .apply { remove(tag) })
                                                 }
                                             )
                                         )
@@ -177,6 +183,22 @@ fun Tags() {
                         }
                     }
                 }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .height(heightAnimated)
+                .requiredHeight(heightAnimated)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            OutlinedButton(
+                modifier = Modifier.fillMaxSize(),
+                shape = RoundedCornerShape(0.dp),
+                onClick = {  },
+            ) {
+                Text(text = "ПОКАЗАТЬ")
             }
         }
     }
