@@ -63,9 +63,9 @@ fun MainPagesByRatingProvider(
         setLoading(true)
 
         val request = if (force) {
-            httpClient.pagesService.listPagesForce(pageNumber)
+            httpClient.pagesService.getDataForce(pageNumber)
         } else {
-            httpClient.pagesService.listPages(pageNumber)
+            httpClient.pagesService.getData(pageNumber)
         }
 
         request.enqueue(object : Callback<PagedResponse> {

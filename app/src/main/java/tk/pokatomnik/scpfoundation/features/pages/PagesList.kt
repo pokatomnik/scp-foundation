@@ -9,12 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 
 @Composable
 fun PagesList(
     title: String,
-    onSelectURL: (url: String) -> Unit
+    hideNavigation: Boolean = false,
+    onSelectURL: (url: String) -> Unit,
+    bottomText: (page: PageInfo) -> String?,
 ) {
     val state = LocalPagesList.current
     val scrollRefreshState = rememberSwipeRefreshState(state.loading)
@@ -40,21 +43,24 @@ fun PagesList(
                 PageTitle(title = title)
             }
             Row(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     LazyPagesList(
                         loading = state.loading,
                         pagedResponse = state.pagedResponse,
                         onSelectURL = onSelectURL,
+                        bottomText = bottomText,
                     )
                 }
             }
-            NavigationButtons(
-                currentPage = state.pageNumber,
-                onNextClick = state.next,
-                onPreviousClick = state.previous,
-                loading = state.loading,
-                maxPage = state.pagedResponse.maxPage
-            )
+            if (!hideNavigation) {
+                NavigationButtons(
+                    currentPage = state.pageNumber,
+                    onNextClick = state.next,
+                    onPreviousClick = state.previous,
+                    loading = state.loading,
+                    maxPage = state.pagedResponse.maxPage
+                )
+            }
         }
     }
 }

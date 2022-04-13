@@ -23,7 +23,8 @@ import tk.pokatomnik.scpfoundation.domain.PagedResponse
 internal fun LazyPagesList(
     loading: Boolean = false,
     pagedResponse: PagedResponse,
-    onSelectURL: (url: String) -> Unit = {}
+    onSelectURL: (url: String) -> Unit = {},
+    bottomText: (page: PageInfo) -> String?,
 ) {
     val scope = rememberCoroutineScope()
     val favoritesState = remember { mutableStateListOf<String>() }
@@ -58,14 +59,16 @@ internal fun LazyPagesList(
         disabled = loading,
     ) {
         Row {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).fillMaxSize(), verticalArrangement = Arrangement.Center) {
                 Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-                Row {
-                    Text(
-                        it.author ?: "(Автор неизвестен)",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                bottomText(it)?.let {
+                    Row {
+                        Text(
+                            text = it,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
             Column(
