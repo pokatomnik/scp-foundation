@@ -39,7 +39,7 @@ fun groupTags(list: Collection<String>): Map<String, List<String>> {
 }
 
 @Composable
-fun Tags() {
+fun Tags(onSelectTags: (tags: Set<String>) -> Unit) {
     val context = LocalContext.current
     val httpClient = rememberHttpClient()
 
@@ -196,7 +196,7 @@ fun Tags() {
             OutlinedButton(
                 modifier = Modifier.fillMaxSize(),
                 shape = RoundedCornerShape(0.dp),
-                onClick = {  },
+                onClick = { onSelectTags(selectedTags) },
             ) {
                 Text(text = "ПОКАЗАТЬ")
             }

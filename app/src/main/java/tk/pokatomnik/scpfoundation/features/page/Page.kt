@@ -3,6 +3,7 @@ package tk.pokatomnik.scpfoundation.features.page
 import android.view.View
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -69,47 +70,50 @@ fun Page(
                     }
                 }
             }
-            Row(
-                modifier = Modifier
-                    .height(heightAnimated.value.dp)
-                    .requiredHeight(heightAnimated.value.dp),
+            Column(modifier = Modifier
+                .height(heightAnimated.value.dp)
+                .requiredHeight(heightAnimated.value.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(onClick = { webViewHolder.goBack(navigateBack) }) {
-                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Назад")
-                    }
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(
-                        onClick = { webViewHolder.reload() },
-                        enabled = !loading,
+                Divider(modifier = Modifier.fillMaxWidth())
+                Row {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Перезагрузить")
+                        IconButton(onClick = { webViewHolder.goBack(navigateBack) }) {
+                            Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Назад")
+                        }
                     }
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    IconButton(onClick = { webViewHolder.goForward() }) {
-                        Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = "Вперед")
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IconButton(
+                            onClick = { webViewHolder.reload() },
+                            enabled = !loading,
+                        ) {
+                            Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Перезагрузить")
+                        }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IconButton(onClick = { webViewHolder.goForward() }) {
+                            Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = "Вперед")
+                        }
                     }
                 }
             }
+
         }
 }

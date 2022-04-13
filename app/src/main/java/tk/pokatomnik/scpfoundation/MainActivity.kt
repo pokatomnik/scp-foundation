@@ -25,6 +25,7 @@ import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.features.page.Page
 import tk.pokatomnik.scpfoundation.features.pages.MainPagesByRatingProvider
 import tk.pokatomnik.scpfoundation.features.pages.PagesList
+import tk.pokatomnik.scpfoundation.features.pagesbytags.MainPagesByTagsProvider
 import tk.pokatomnik.scpfoundation.features.tags.Tags
 import tk.pokatomnik.scpfoundation.ui.theme.SCPFoundationTheme
 import tk.pokatomnik.scpfoundation.utils.deserializeFromURLFriendly
@@ -89,10 +90,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 icon = {
-                                    Icon(
-                                        Icons.Filled.Tag,
-                                        contentDescription = "Теги"
-                                    )
+                                    Icon(imageVector = Icons.Filled.Tag, contentDescription = "Теги")
                                 },
                                 label = { Text("Теги") },
                             )
@@ -112,6 +110,7 @@ class MainActivity : ComponentActivity() {
                                 composable(route = "pages") {
                                     PagesList(
                                         title = "Список документов",
+                                        bottomText = { it.author ?: "(Автор неизвестен)" },
                                         onSelectURL = {
                                             navController.navigate("page/${serializeToURLFriendly(it)}") {
                                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -119,7 +118,34 @@ class MainActivity : ComponentActivity() {
                                                 }
                                                 launchSingleTop = true
                                             }
-                                        })
+                                        }
+                                    )
+                                }
+                                composable(
+                                    route = "pagesByTags/{tags}",
+                                    arguments = listOf(navArgument("tags") {
+                                        type = NavType.StringType
+                                    })
+                                ) { backStackEntry ->
+                                    val tags = deserializeFromURLFriendly(
+                                        backStackEntry.arguments?.getString("tags") ?: ""
+                                    ).split("|").toTypedArray()
+
+                                    MainPagesByTagsProvider(tags = tags) {
+                                        PagesList(
+                                            hideNavigation = true,
+                                            title = "По тегам",
+                                            bottomText = { null },
+                                            onSelectURL = {
+                                                navController.navigate("page/${serializeToURLFriendly(it)}") {
+                                                    popUpTo(navController.graph.findStartDestination().id) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
                                 composable(route = "favorites") {
                                     FavoritesList(onSelectURL = {
@@ -149,7 +175,17 @@ class MainActivity : ComponentActivity() {
                                 composable(
                                     route = "tags"
                                 ) {
-                                    Tags()
+                                    Tags(onSelectTags = {
+                                        val tagsSerialized = serializeToURLFriendly(it.joinToString("|"))
+                                        navController
+                                            .navigate("pagesByTags/${tagsSerialized}") {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         }

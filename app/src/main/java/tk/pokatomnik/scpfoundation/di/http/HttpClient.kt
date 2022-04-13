@@ -6,7 +6,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 import tk.pokatomnik.scpfoundation.di.http.pages.PagesConverterFactory
+import tk.pokatomnik.scpfoundation.domain.PageByTagsImpl
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import java.util.concurrent.TimeUnit
 
@@ -18,6 +20,11 @@ interface PagesService {
 interface TagsService {
     @GET("_api/wikidot_tags_search/list?wiki=scp-ru")
     fun listTags(): Call<List<String>>
+}
+
+interface PagesByTagsService {
+    @GET("_api/wikidot_tags_search/find?wiki=scp-ru")
+    fun listPagesByTags(@Query("tag") vararg tag: String): Call<List<PageByTagsImpl>>
 }
 
 class HttpClient {
@@ -35,6 +42,13 @@ class HttpClient {
         .build()
 
     private val tagsRetrofitService = Retrofit
+        .Builder()
+        .baseUrl(API_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val pagesByTagsRetrofitService = Retrofit
         .Builder()
         .baseUrl(API_URL)
         .client(okHttpClient)
@@ -69,8 +83,22 @@ class HttpClient {
         }
     )
 
-    private companion object {
-        private const val WEBSITE_URL = "http://scp-ru.wikidot.com/"
+    val pagesByTagsService = PagesServiceCachingDecorator(
+        object : DataFetchingService<Array<String>, List<PageByTagsImpl>> {
+            private val client = pagesByTagsRetrofitService.create(PagesByTagsService::class.java)
+
+            override fun getData(params: Array<String>): Call<List<PageByTagsImpl>> {
+                return client.listPagesByTags(*params)
+            }
+
+            override fun serializeParams(params: Array<String>): String {
+                return params.joinToString("|")
+            }
+        }
+    )
+
+    companion object {
+        const val WEBSITE_URL = "http://scp-ru.wikidot.com/"
         private const val API_URL = "https://m.scpfoundation.net/"
     }
 }
