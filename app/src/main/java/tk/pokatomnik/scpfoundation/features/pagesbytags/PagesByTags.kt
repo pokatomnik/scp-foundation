@@ -23,7 +23,7 @@ fun MainPagesByTagsProvider(
 
     val (hasError, setHasError) = remember { mutableStateOf(false) }
     val (loading, setLoading) = remember { mutableStateOf(false) }
-    val (pages, setPages) = remember { mutableStateOf<PagedResponse>(PagedResponseImpl()) }
+    val (pages, setPages) = remember { mutableStateOf<PagedResponse?>(null) }
 
     fun refreshByPageNumber(
         tags: Array<String>,

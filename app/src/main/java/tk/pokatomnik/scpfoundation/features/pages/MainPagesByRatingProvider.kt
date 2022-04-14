@@ -25,7 +25,7 @@ fun MainPagesByRatingProvider(
 
     val (hasError, setHasError) = remember { mutableStateOf(false) }
     val (loading, setLoading) = remember { mutableStateOf(false) }
-    val (pages, setPages) = remember { mutableStateOf<PagedResponse>(PagedResponseImpl()) }
+    val (pages, setPages) = remember { mutableStateOf<PagedResponse?>(null) }
 
     val (pageNumber, setPageNumber) = remember {
         mutableStateOf(preferencesContainer.pagesPreferences.getSavedPage())
@@ -35,20 +35,24 @@ fun MainPagesByRatingProvider(
         preferencesContainer.pagesPreferences.savePage(pageNumber)
     }
 
-    val previous = {
-        val previousPage = max(pages.minPage, pageNumber - 1)
-        if (previousPage == pageNumber) {
-            Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
-        } else {
-            setPageNumber(previousPage)
+    val previous: () -> Unit = {
+        pages?.let { pages ->
+            val previousPage = max(pages.minPage, pageNumber - 1)
+            if (previousPage == pageNumber) {
+                Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
+            } else {
+                setPageNumber(previousPage)
+            }
         }
     }
-    val next = {
-        val nextPage = min(pages.maxPage, pageNumber + 1)
-        if (nextPage == pageNumber) {
-            Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
-        } else {
-            setPageNumber(nextPage)
+    val next: () -> Unit = {
+        pages?.let { pages ->
+            val nextPage = min(pages.maxPage, pageNumber + 1)
+            if (nextPage == pageNumber) {
+                Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
+            } else {
+                setPageNumber(nextPage)
+            }
         }
     }
 

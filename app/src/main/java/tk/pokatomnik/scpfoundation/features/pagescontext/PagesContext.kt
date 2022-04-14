@@ -7,7 +7,7 @@ import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 internal class ContextValue(
     val hasError: Boolean,
     val loading: Boolean,
-    val pagedResponse: PagedResponse,
+    val pagedResponse: PagedResponse?,
     val pageNumber: Int,
     val previous: () -> Unit,
     val next: () -> Unit,

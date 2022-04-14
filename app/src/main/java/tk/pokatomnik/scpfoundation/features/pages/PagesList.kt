@@ -1,6 +1,5 @@
 package tk.pokatomnik.scpfoundation.features.pages
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 
 @Composable
@@ -46,10 +46,10 @@ fun PagesList(
             ) {
                 PageTitle(title = title)
             }
-            if (!state.loading && state.pagedResponse.pages.isEmpty()) {
+            if (state.pagedResponse?.pages?.size == 0) {
                 // Display Empty message
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -60,7 +60,7 @@ fun PagesList(
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyPagesList(
                             loading = state.loading,
-                            pagedResponse = state.pagedResponse,
+                            pagedResponse = state.pagedResponse ?: PagedResponseImpl(),
                             onSelectURL = onSelectURL,
                             bottomText = bottomText,
                         )
@@ -72,7 +72,7 @@ fun PagesList(
                         onNextClick = state.next,
                         onPreviousClick = state.previous,
                         loading = state.loading,
-                        maxPage = state.pagedResponse.maxPage
+                        maxPage = state.pagedResponse?.maxPage ?: 1
                     )
                 }
             }

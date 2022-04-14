@@ -31,7 +31,7 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
 
     val scrollRefreshState = rememberSwipeRefreshState(false)
 
-    val (pages, setPages) = remember { mutableStateOf<List<PageInfo>>(listOf()) }
+    val (pages, setPages) = remember { mutableStateOf<List<PageInfo>?>(null) }
     val (favoriteURLs, setFavoriteURLs) = remember { mutableStateOf<List<String>>(listOf()) }
 
     fun refresh() {
@@ -48,9 +48,9 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
 
     LaunchedEffect(pages) {
         scope.launch {
-            val ids = pages.map { it.url }.toTypedArray()
+            val ids = (pages ?: listOf()).map { it.url }.toTypedArray()
             val favorites = database.favoritesDAO().getByURLs(ids)
-            val newFavoriteURLs = favorites.map { it.url }.toList();
+            val newFavoriteURLs = favorites.map { it.url }.toList()
             setFavoriteURLs(newFavoriteURLs)
         }
     }
@@ -91,58 +91,68 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
                 PageTitle(title = "Избранное")
             }
             Row(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LazyList(
-                        list = pages,
-                        onClick = { onSelectURL(it.url) },
+                if (pages?.size == 0) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Row {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row {
-                                    Text(
-                                        it.name,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                                Row {
-                                    Text(
-                                        it.author ?: "(Автор неизвестен)",
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .requiredWidth(48.dp)
-                                    .width(48.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    IconButton(
-                                        modifier = Modifier
-                                            .requiredWidth(48.dp)
-                                            .width(48.dp),
-                                        onClick = {
-                                            if (favoriteURLs.contains(it.url)) {
-                                                removeFavorite(it)
-                                            } else {
-                                                addFavorite(it)
-                                            }
-                                        }
-                                    ) {
-                                        val icon = if (favoriteURLs.contains(it.url)) {
-                                            Icons.Filled.Favorite
-                                        } else {
-                                            Icons.Filled.FavoriteBorder
-                                        }
-                                        Icon(
-                                            imageVector = icon,
-                                            contentDescription = "В Избранное"
+                        Text("В избранном пусто:(")
+                    }
+                } else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyList(
+                            list = pages ?: listOf(),
+                            onClick = { onSelectURL(it.url) },
+                        ) {
+                            Row {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row {
+                                        Text(
+                                            it.name,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
+                                    }
+                                    Row {
+                                        Text(
+                                            it.author ?: "(Автор неизвестен)",
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .requiredWidth(48.dp)
+                                        .width(48.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        IconButton(
+                                            modifier = Modifier
+                                                .requiredWidth(48.dp)
+                                                .width(48.dp),
+                                            onClick = {
+                                                if (favoriteURLs.contains(it.url)) {
+                                                    removeFavorite(it)
+                                                } else {
+                                                    addFavorite(it)
+                                                }
+                                            }
+                                        ) {
+                                            val icon = if (favoriteURLs.contains(it.url)) {
+                                                Icons.Filled.Favorite
+                                            } else {
+                                                Icons.Filled.FavoriteBorder
+                                            }
+                                            Icon(
+                                                imageVector = icon,
+                                                contentDescription = "В Избранное"
+                                            )
+                                        }
                                     }
                                 }
                             }
