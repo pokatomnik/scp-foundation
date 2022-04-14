@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -154,7 +155,7 @@ fun Tags(onSelectTags: (tags: Set<String>) -> Unit) {
                             horizontalArrangement = Arrangement.Start
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
-                                Text(text = key)
+                                Text(text = key, fontWeight = FontWeight.Bold)
                                 Divider(modifier = Modifier.padding(bottom = 10.dp))
                                 FlowRow(
                                     modifier = Modifier
