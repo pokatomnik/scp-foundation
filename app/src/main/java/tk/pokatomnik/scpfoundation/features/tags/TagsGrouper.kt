@@ -1,6 +1,6 @@
 package tk.pokatomnik.scpfoundation.features.tags
 
-val CYRILIC = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя".uppercase().split("").toSet()
+val CYRILLIC = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя".uppercase().split("").toSet()
 
 fun groupTags(list: Collection<String>): Map<String, List<String>> {
     return list
@@ -12,9 +12,7 @@ fun groupTags(list: Collection<String>): Map<String, List<String>> {
                     }
                 } else {
                     acc.apply {
-                        get(
-                            if (CYRILIC.contains(current[0].toString())) 0 else 1
-                        ).add(current)
+                        get(if (CYRILLIC.contains(current[0].toString())) 0 else 1).add(current)
                     }
                 }
             }
