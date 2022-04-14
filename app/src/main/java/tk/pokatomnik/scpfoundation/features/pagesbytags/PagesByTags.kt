@@ -49,7 +49,9 @@ fun MainPagesByTagsProvider(
                 call: Call<List<PageByTagsImpl>>,
                 response: Response<List<PageByTagsImpl>>
             ) {
-                val items = (response.body() ?: listOf()).map { it.toPage() }
+                val items = (response.body() ?: listOf())
+                    .map { it.toPage() }
+                    .sortedWith { a, b -> a.name.lowercase().compareTo(b.name.lowercase()) }
                 val pagedResponse = PagedResponseImpl(
                     maxPage = 1,
                     minPage = 1,

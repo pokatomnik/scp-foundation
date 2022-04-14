@@ -28,17 +28,6 @@ import tk.pokatomnik.scpfoundation.components.ChipComponentProps
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.features.pages.PageTitle
 
-fun groupTags(list: Collection<String>): Map<String, List<String>> {
-    return list.fold(mutableMapOf<String, MutableList<String>>()) { map, current ->
-        if (current.isBlank()) map else {
-            map.apply {
-                val firstCharKey = current[0].uppercase()
-                map[firstCharKey] = (map[firstCharKey] ?: mutableListOf()).apply { add(current) }
-            }
-        }
-    }
-}
-
 @Composable
 fun Tags(onSelectTags: (tags: Set<String>) -> Unit) {
     val context = LocalContext.current
