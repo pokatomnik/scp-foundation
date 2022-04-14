@@ -47,9 +47,10 @@ class MainActivity : ComponentActivity() {
                                 selected = currentDestination?.hierarchy?.any { it.route === "pages" } == true,
                                 onClick = {
                                     navController.navigate("pages") {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
+//                                        Disable "back to home" navigation
+//                                        popUpTo(navController.graph.findStartDestination().id) {
+//                                            saveState = true
+//                                        }
                                         launchSingleTop = true
                                     }
                                 },
@@ -65,9 +66,10 @@ class MainActivity : ComponentActivity() {
                                 selected = currentDestination?.hierarchy?.any { it.route === "favorites" } == true,
                                 onClick = {
                                     navController.navigate("favorites") {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
+//                                        Disable "back to home" navigation
+//                                        popUpTo(navController.graph.findStartDestination().id) {
+//                                            saveState = true
+//                                        }
                                         launchSingleTop = true
                                     }
                                 },
@@ -83,9 +85,10 @@ class MainActivity : ComponentActivity() {
                                 selected = currentDestination?.hierarchy?.any { it.route === "tags" } == true,
                                 onClick = {
                                     navController.navigate("tags") {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
+//                                        Disable "back to home" navigation
+//                                        popUpTo(navController.graph.findStartDestination().id) {
+//                                            saveState = true
+//                                        }
                                         launchSingleTop = true
                                     }
                                 },
@@ -113,9 +116,10 @@ class MainActivity : ComponentActivity() {
                                         bottomText = { it.author ?: "(Автор неизвестен)" },
                                         onSelectURL = {
                                             navController.navigate("page/${serializeToURLFriendly(it)}") {
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
+//                                                Disable "back to home" navigation
+//                                                popUpTo(navController.graph.findStartDestination().id) {
+//                                                    saveState = true
+//                                                }
                                                 launchSingleTop = true
                                             }
                                         }
@@ -138,9 +142,10 @@ class MainActivity : ComponentActivity() {
                                             bottomText = { null },
                                             onSelectURL = {
                                                 navController.navigate("page/${serializeToURLFriendly(it)}") {
-                                                    popUpTo(navController.graph.findStartDestination().id) {
-                                                        saveState = true
-                                                    }
+//                                                    Disable "back to home" navigation
+//                                                    popUpTo(navController.graph.findStartDestination().id) {
+//                                                        saveState = true
+//                                                    }
                                                     launchSingleTop = true
                                                 }
                                             }
@@ -150,9 +155,10 @@ class MainActivity : ComponentActivity() {
                                 composable(route = "favorites") {
                                     FavoritesList(onSelectURL = {
                                         navController.navigate("page/${serializeToURLFriendly(it)}") {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
+//                                            Disable "back to home" navigation
+//                                            popUpTo(navController.graph.findStartDestination().id) {
+//                                                saveState = true
+//                                            }
                                             launchSingleTop = true
                                         }
                                     })
@@ -179,9 +185,10 @@ class MainActivity : ComponentActivity() {
                                         val tagsSerialized = serializeToURLFriendly(it.joinToString("|"))
                                         navController
                                             .navigate("pagesByTags/${tagsSerialized}") {
-                                                popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
+//                                                Disable "back to home" navigation
+//                                                popUpTo(navController.graph.findStartDestination().id) {
+//                                                    saveState = true
+//                                                }
                                                 launchSingleTop = true
                                             }
                                         }
