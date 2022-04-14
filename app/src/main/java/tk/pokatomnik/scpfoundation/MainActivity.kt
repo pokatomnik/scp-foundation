@@ -13,7 +13,6 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -113,6 +112,7 @@ class MainActivity : ComponentActivity() {
                                 composable(route = "pages") {
                                     PagesList(
                                         title = "Список документов",
+                                        emptyText = "Нет документов на этой странице",
                                         bottomText = { it.author ?: "(Автор неизвестен)" },
                                         onSelectURL = {
                                             navController.navigate("page/${serializeToURLFriendly(it)}") {
@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
 //                                                }
                                                 launchSingleTop = true
                                             }
-                                        }
+                                        },
                                     )
                                 }
                                 composable(
@@ -139,6 +139,7 @@ class MainActivity : ComponentActivity() {
                                         PagesList(
                                             hideNavigation = true,
                                             title = "По тегам",
+                                            emptyText = "Нет документов по выбранным тегам",
                                             bottomText = { null },
                                             onSelectURL = {
                                                 navController.navigate("page/${serializeToURLFriendly(it)}") {
