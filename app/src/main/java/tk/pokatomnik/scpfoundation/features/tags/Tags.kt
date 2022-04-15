@@ -26,7 +26,7 @@ import retrofit2.Response
 import tk.pokatomnik.scpfoundation.components.ChipComponent
 import tk.pokatomnik.scpfoundation.components.ChipComponentProps
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
-import tk.pokatomnik.scpfoundation.features.pages.PageTitle
+import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
 
 @Composable
 fun Tags(onSelectTags: (tags: Set<String>) -> Unit) {

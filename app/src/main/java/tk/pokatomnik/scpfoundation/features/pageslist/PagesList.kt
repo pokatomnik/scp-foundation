@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.features.pages
+package tk.pokatomnik.scpfoundation.features.pageslist
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,7 +12,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
-import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
+import tk.pokatomnik.scpfoundation.features.pagesproviders.LocalPagesList
 
 @Composable
 fun PagesList(

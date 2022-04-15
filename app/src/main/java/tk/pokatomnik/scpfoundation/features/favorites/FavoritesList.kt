@@ -22,7 +22,7 @@ import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
-import tk.pokatomnik.scpfoundation.features.pages.PageTitle
+import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
 
 @Composable
 fun FavoritesList(

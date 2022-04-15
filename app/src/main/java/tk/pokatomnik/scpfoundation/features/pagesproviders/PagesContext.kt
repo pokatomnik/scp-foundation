@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.features.pagescontext
+package tk.pokatomnik.scpfoundation.features.pagesproviders
 
 import androidx.compose.runtime.compositionLocalOf
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
