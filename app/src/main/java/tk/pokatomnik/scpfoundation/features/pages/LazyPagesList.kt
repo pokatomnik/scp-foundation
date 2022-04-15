@@ -23,7 +23,7 @@ import tk.pokatomnik.scpfoundation.domain.PagedResponse
 internal fun LazyPagesList(
     loading: Boolean = false,
     pagedResponse: PagedResponse,
-    onSelectURL: (url: String) -> Unit = {},
+    onSelectPageInfo: (pageInfo: PageInfo) -> Unit,
     bottomText: (page: PageInfo) -> String?,
 ) {
     val scope = rememberCoroutineScope()
@@ -55,7 +55,7 @@ internal fun LazyPagesList(
 
     LazyList(
         list = pagedResponse.pages,
-        onClick = { onSelectURL(it.url) },
+        onClick = { onSelectPageInfo(it) },
         disabled = loading,
     ) {
         Row {

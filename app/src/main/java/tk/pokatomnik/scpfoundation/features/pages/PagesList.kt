@@ -18,7 +18,7 @@ import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 fun PagesList(
     title: String,
     hideNavigation: Boolean = false,
-    onSelectURL: (url: String) -> Unit,
+    onSelectPageInfo: (pageInfo: PageInfo) -> Unit,
     bottomText: (page: PageInfo) -> String?,
     emptyText: String = ""
 ) {
@@ -61,7 +61,7 @@ fun PagesList(
                         LazyPagesList(
                             loading = state.loading,
                             pagedResponse = state.pagedResponse ?: PagedResponseImpl(),
-                            onSelectURL = onSelectURL,
+                            onSelectPageInfo = onSelectPageInfo,
                             bottomText = bottomText,
                         )
                     }

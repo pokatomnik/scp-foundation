@@ -15,4 +15,7 @@ interface FavoritesDAO {
 
     @Query("DELETE FROM favorites WHERE url = :url")
     suspend fun deleteByURL(url: String)
+
+    @Query("SELECT EXISTS(SELECT * FROM favorites WHERE url = :url)")
+    suspend fun existsByUrl(url: String): Boolean
 }

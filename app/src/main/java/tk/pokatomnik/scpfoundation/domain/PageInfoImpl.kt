@@ -16,4 +16,15 @@ class PageInfoImpl(
         author = favorite.author,
         date = favorite.date
     )
+
+    fun toFavorite(): Favorite {
+        return Favorite(
+            id = null,
+            name = name,
+            url = url,
+            rating = rating,
+            author = author,
+            date = date,
+        )
+    }
 }

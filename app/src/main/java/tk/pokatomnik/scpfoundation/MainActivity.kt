@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.features.page.Page
 import tk.pokatomnik.scpfoundation.features.pages.MainPagesByRatingProvider
@@ -114,8 +115,9 @@ class MainActivity : ComponentActivity() {
                                         title = "Список документов",
                                         emptyText = "Нет документов на этой странице",
                                         bottomText = { it.author ?: "(Автор неизвестен)" },
-                                        onSelectURL = {
-                                            navController.navigate("page/${serializeToURLFriendly(it)}") {
+                                        onSelectPageInfo = {
+                                            val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                            navController.navigate(route) {
 //                                                Disable "back to home" navigation
 //                                                popUpTo(navController.graph.findStartDestination().id) {
 //                                                    saveState = true
@@ -141,8 +143,9 @@ class MainActivity : ComponentActivity() {
                                             title = "По тегам",
                                             emptyText = "Нет документов по выбранным тегам",
                                             bottomText = { null },
-                                            onSelectURL = {
-                                                navController.navigate("page/${serializeToURLFriendly(it)}") {
+                                            onSelectPageInfo = {
+                                                val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                                navController.navigate(route) {
 //                                                    Disable "back to home" navigation
 //                                                    popUpTo(navController.graph.findStartDestination().id) {
 //                                                        saveState = true
@@ -154,8 +157,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 composable(route = "favorites") {
-                                    FavoritesList(onSelectURL = {
-                                        navController.navigate("page/${serializeToURLFriendly(it)}") {
+                                    FavoritesList(onSelectPageInfo = {
+                                        val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                        navController.navigate(route) {
 //                                            Disable "back to home" navigation
 //                                            popUpTo(navController.graph.findStartDestination().id) {
 //                                                saveState = true
@@ -165,17 +169,28 @@ class MainActivity : ComponentActivity() {
                                     })
                                 }
                                 composable(
-                                    route = "page/{urlURLFriendly}",
-                                    arguments = listOf(navArgument("urlURLFriendly") {
-                                        type = NavType.StringType
-                                    })
-                                ) { backStackEntry ->
-                                    val url =
-                                        backStackEntry.arguments?.getString("urlURLFriendly")?.let {
-                                            deserializeFromURLFriendly(it)
+                                    route = "page/{urlURLFriendly}/{nameURLFriendly}",
+                                    arguments = listOf(
+                                        navArgument("urlURLFriendly") {
+                                            type = NavType.StringType
+                                        },
+                                        navArgument("nameURLFriendly") {
+                                            type = NavType.StringType
                                         }
+                                    )
+                                ) { backStackEntry ->
+                                    val arguments = backStackEntry.arguments
+                                    val url = arguments?.getString("urlURLFriendly")?.let {
+                                        deserializeFromURLFriendly(it)
+                                    }
+                                    val name = arguments?.getString("nameURLFriendly")?.let {
+                                        deserializeFromURLFriendly(it)
+                                    }
+                                    val pageInfo = if (url != null && name != null) {
+                                        PageInfoImpl(name = name, url = url, date = null, rating = null, author = null)
+                                    } else null
                                     Page(
-                                        url = url ?: "",
+                                        page = pageInfo,
                                         navigateBack = { navController.popBackStack() }
                                     )
                                 }
