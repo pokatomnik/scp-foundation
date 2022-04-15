@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.features.pagesbytags
+package tk.pokatomnik.scpfoundation.features.pagesproviders
 
 import android.widget.Toast
 import androidx.compose.runtime.*
@@ -10,8 +10,6 @@ import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.domain.PageByTagsImpl
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
-import tk.pokatomnik.scpfoundation.features.pagescontext.ContextValue
-import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 
 @Composable
 fun MainPagesByTagsProvider(

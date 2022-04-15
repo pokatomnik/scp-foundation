@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.features.pages
+package tk.pokatomnik.scpfoundation.features.pageslist
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon

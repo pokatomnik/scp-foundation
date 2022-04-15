@@ -1,4 +1,4 @@
-package tk.pokatomnik.scpfoundation.features.pages
+package tk.pokatomnik.scpfoundation.features.pagesproviders
 
 import android.widget.Toast
 import androidx.compose.runtime.*
@@ -7,33 +7,23 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
-import tk.pokatomnik.scpfoundation.di.preferences.rememberPreferences
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
-import tk.pokatomnik.scpfoundation.features.pagescontext.ContextValue
-import tk.pokatomnik.scpfoundation.features.pagescontext.LocalPagesList
 import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun MainPagesByRatingProvider(
+fun LatestPagesProvider(
     children: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     val httpClient = rememberHttpClient()
-    val preferencesContainer = rememberPreferences()
 
     val (hasError, setHasError) = remember { mutableStateOf(false) }
     val (loading, setLoading) = remember { mutableStateOf(false) }
     val (pages, setPages) = remember { mutableStateOf<PagedResponse?>(null) }
 
-    val (pageNumber, setPageNumber) = remember {
-        mutableStateOf(preferencesContainer.pagesPreferences.getSavedPage())
-    }
-
-    LaunchedEffect(pageNumber) {
-        preferencesContainer.pagesPreferences.savePage(pageNumber)
-    }
+    val (pageNumber, setPageNumber) = remember { mutableStateOf(1) }
 
     val previous: () -> Unit = {
         pages?.let { pages ->
@@ -67,9 +57,9 @@ fun MainPagesByRatingProvider(
         setLoading(true)
 
         val request = if (force) {
-            httpClient.pagesService.getDataForce(pageNumber)
+            httpClient.latestPagesService.getDataForce(pageNumber)
         } else {
-            httpClient.pagesService.getData(pageNumber)
+            httpClient.latestPagesService.getData(pageNumber)
         }
 
         request.enqueue(object : Callback<PagedResponse> {
