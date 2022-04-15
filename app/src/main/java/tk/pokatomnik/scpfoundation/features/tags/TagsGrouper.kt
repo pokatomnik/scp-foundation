@@ -12,7 +12,9 @@ fun groupTags(list: Collection<String>): Map<String, List<String>> {
                     }
                 } else {
                     acc.apply {
-                        get(if (CYRILLIC.contains(current[0].toString())) 0 else 1).add(current)
+                        val firstLetter = current[0].toString().uppercase()
+                        val indexInList = if (CYRILLIC.contains(firstLetter)) 0 else 1
+                        get(indexInList).add(current)
                     }
                 }
             }
