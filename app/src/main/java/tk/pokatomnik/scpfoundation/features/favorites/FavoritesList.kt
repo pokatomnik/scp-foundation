@@ -25,7 +25,9 @@ import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.features.pages.PageTitle
 
 @Composable
-fun FavoritesList(onSelectURL: (url: String) -> Unit) {
+fun FavoritesList(
+    onSelectPageInfo: (pageInfo: PageInfo) -> Unit
+) {
     val database = rememberDatabase()
     val scope = rememberCoroutineScope()
 
@@ -103,7 +105,7 @@ fun FavoritesList(onSelectURL: (url: String) -> Unit) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyList(
                             list = pages ?: listOf(),
-                            onClick = { onSelectURL(it.url) },
+                            onClick = { onSelectPageInfo(it) },
                         ) {
                             Row {
                                 Column(modifier = Modifier.weight(1f)) {
