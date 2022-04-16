@@ -1,4 +1,4 @@
-<img src="https://github.com/pokatomnik/scp-foundation/blob/master/screenshot.png?raw=true" width="300">
+<img src="https://raw.githubusercontent.com/pokatomnik/scp-foundation/dungeon-master/screenshot.png" width="300">
 
 # SCP Documents reader
 
