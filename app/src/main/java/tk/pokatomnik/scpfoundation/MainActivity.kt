@@ -61,8 +61,7 @@ class MainActivity : ComponentActivity() {
                                         Icons.Filled.List,
                                         contentDescription = "Документы"
                                     )
-                                },
-                                label = { Text("Документы") },
+                                }
                             )
                             BottomNavigationItem(
                                 selected = currentDestination?.hierarchy?.any { it.route === "latestPages" } == true,
@@ -80,8 +79,7 @@ class MainActivity : ComponentActivity() {
                                         Icons.Filled.FiberNew,
                                         contentDescription = "Новые документы"
                                     )
-                                },
-                                label = { Text("Новые") },
+                                }
                             )
                             BottomNavigationItem(
                                 selected = currentDestination?.hierarchy?.any { it.route === "favorites" } == true,
@@ -99,8 +97,7 @@ class MainActivity : ComponentActivity() {
                                         Icons.Filled.Favorite,
                                         contentDescription = "Избранное"
                                     )
-                                },
-                                label = { Text("Избранное") },
+                                }
                             )
                             BottomNavigationItem(
                                 selected = currentDestination?.hierarchy?.any { it.route === "tags" } == true,
@@ -115,8 +112,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 icon = {
                                     Icon(imageVector = Icons.Filled.Tag, contentDescription = "Теги")
-                                },
-                                label = { Text("Теги") },
+                                }
                             )
                         }
                     }
