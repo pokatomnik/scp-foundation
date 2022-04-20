@@ -9,8 +9,6 @@ import retrofit2.Response
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
-import kotlin.math.max
-import kotlin.math.min
 
 @Composable
 fun LatestPagesProvider(
@@ -25,23 +23,13 @@ fun LatestPagesProvider(
 
     val (pageNumber, setPageNumber) = remember { mutableStateOf(1) }
 
-    val previous: () -> Unit = {
+    fun onExplicitNavigate(pageNumber: Int) {
         pages?.let { pages ->
-            val previousPage = max(pages.minPage, pageNumber - 1)
-            if (previousPage == pageNumber) {
-                Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
-            } else {
-                setPageNumber(previousPage)
-            }
-        }
-    }
-    val next: () -> Unit = {
-        pages?.let { pages ->
-            val nextPage = min(pages.maxPage, pageNumber + 1)
-            if (nextPage == pageNumber) {
-                Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
-            } else {
-                setPageNumber(nextPage)
+            when {
+                pageNumber in pages.minPage..pages.maxPage -> setPageNumber(pageNumber)
+                pageNumber > pages.maxPage ->
+                    Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -76,7 +64,11 @@ fun LatestPagesProvider(
                 setHasError(true)
                 setPages(PagedResponseImpl())
                 setPageNumber(1)
-                Toast.makeText(context, "Ошибка загрузки документов, попробуйте позднее", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Ошибка загрузки документов, попробуйте позднее",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
@@ -101,8 +93,7 @@ fun LatestPagesProvider(
             loading = loading,
             pagedResponse = pages,
             pageNumber = pageNumber,
-            next = next,
-            previous = previous,
+            onExplicitNavigate = { onExplicitNavigate(it) },
             forceRefresh = forceRefresh
         )
     ) {
