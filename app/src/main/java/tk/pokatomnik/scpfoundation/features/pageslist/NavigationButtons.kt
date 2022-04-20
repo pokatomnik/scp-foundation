@@ -46,7 +46,12 @@ internal fun NavigationButtons(
         AlertDialog(
             onDismissRequest = { dialogVisible = false },
             text = {
-                Column(modifier = Modifier.fillMaxWidth().width(IntrinsicSize.Min).padding(horizontal = 8.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .width(IntrinsicSize.Min)
+                        .padding(horizontal = 8.dp)
+                ) {
                     Text(
                         text = "Перейти к странице",
                         fontWeight = FontWeight.Bold
@@ -70,15 +75,19 @@ internal fun NavigationButtons(
             },
             buttons = {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Button(
                         onClick = { handleNavigationDone() },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
                     ) {
-                            Text("Перейти")
-                        }
+                        Text("Перейти")
+                    }
                 }
             }
         )
