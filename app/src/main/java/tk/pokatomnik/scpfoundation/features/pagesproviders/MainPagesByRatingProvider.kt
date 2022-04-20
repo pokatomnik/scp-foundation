@@ -10,8 +10,6 @@ import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.di.preferences.rememberPreferences
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
-import kotlin.math.max
-import kotlin.math.min
 
 @Composable
 fun MainPagesByRatingProvider(
@@ -33,23 +31,13 @@ fun MainPagesByRatingProvider(
         preferencesContainer.pagesPreferences.savePage(pageNumber)
     }
 
-    val previous: () -> Unit = {
+    fun onExplicitNavigate(pageNumber: Int) {
         pages?.let { pages ->
-            val previousPage = max(pages.minPage, pageNumber - 1)
-            if (previousPage == pageNumber) {
-                Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
-            } else {
-                setPageNumber(previousPage)
-            }
-        }
-    }
-    val next: () -> Unit = {
-        pages?.let { pages ->
-            val nextPage = min(pages.maxPage, pageNumber + 1)
-            if (nextPage == pageNumber) {
-                Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
-            } else {
-                setPageNumber(nextPage)
+            when {
+                pageNumber in pages.minPage..pages.maxPage -> setPageNumber(pageNumber)
+                pageNumber > pages.maxPage ->
+                    Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -84,7 +72,11 @@ fun MainPagesByRatingProvider(
                 setHasError(true)
                 setPages(PagedResponseImpl())
                 setPageNumber(1)
-                Toast.makeText(context, "Ошибка загрузки документов, попробуйте позднее", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Ошибка загрузки документов, попробуйте позднее",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
@@ -109,8 +101,7 @@ fun MainPagesByRatingProvider(
             loading = loading,
             pagedResponse = pages,
             pageNumber = pageNumber,
-            next = next,
-            previous = previous,
+            onExplicitNavigate = { onExplicitNavigate(it) },
             forceRefresh = forceRefresh
         )
     ) {

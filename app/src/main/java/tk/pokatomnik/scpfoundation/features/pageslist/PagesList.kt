@@ -69,10 +69,9 @@ fun PagesList(
                 if (!hideNavigation) {
                     NavigationButtons(
                         currentPage = state.pageNumber,
-                        onNextClick = state.next,
-                        onPreviousClick = state.previous,
                         loading = state.loading,
-                        maxPage = state.pagedResponse?.maxPage ?: 1
+                        maxPage = state.pagedResponse?.maxPage ?: 1,
+                        onExplicitNavigate = state.onExplicitNavigate
                     )
                 }
             }

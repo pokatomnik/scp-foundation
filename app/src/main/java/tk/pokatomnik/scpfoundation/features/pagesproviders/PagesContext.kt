@@ -9,8 +9,7 @@ internal class ContextValue(
     val loading: Boolean,
     val pagedResponse: PagedResponse?,
     val pageNumber: Int,
-    val previous: () -> Unit,
-    val next: () -> Unit,
+    val onExplicitNavigate: (pageNumber: Int) -> Unit,
     val forceRefresh: () -> Unit
 )
 
@@ -20,8 +19,7 @@ internal val LocalPagesList = compositionLocalOf {
         loading = false,
         pagedResponse = PagedResponseImpl(),
         pageNumber = 0,
-        previous = {},
-        next = {},
+        onExplicitNavigate = {},
         forceRefresh = {}
     )
 }

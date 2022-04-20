@@ -92,8 +92,7 @@ fun MainPagesByTagsProvider(
             loading = loading,
             pagedResponse = pages,
             pageNumber = 1,
-            next = {},
-            previous = {},
+            onExplicitNavigate = {},
             forceRefresh = forceRefresh
         )
     ) {

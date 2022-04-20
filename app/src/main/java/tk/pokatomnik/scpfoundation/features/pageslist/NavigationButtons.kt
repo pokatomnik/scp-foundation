@@ -1,26 +1,60 @@
 package tk.pokatomnik.scpfoundation.features.pageslist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun NavigationButtons(
-    onPreviousClick: () -> Unit = {},
-    onNextClick: () -> Unit = {},
+    onExplicitNavigate: (pageNumber: Int) -> Unit,
     loading: Boolean = false,
     currentPage: Int,
     maxPage: Int,
 ) {
+    var dialogVisible by remember { mutableStateOf(false) }
+    var directPageNumberInput by remember { mutableStateOf(currentPage.toString()) }
+
+    if (dialogVisible) {
+        AlertDialog(
+            onDismissRequest = { dialogVisible = false },
+            title = { Text("Перейти к странице") },
+            text = {
+                TextField(
+                    value = directPageNumberInput,
+                    onValueChange = { directPageNumberInput = it }
+                )
+            },
+            buttons = {
+                Row(
+                    modifier = Modifier.padding(all = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            try {
+                                onExplicitNavigate(directPageNumberInput.toInt())
+                                dialogVisible = false
+                                directPageNumberInput = currentPage.toString()
+                            } catch (e: Exception) { }
+                        }
+                    ) {
+                        Text("Перейти")
+                    }
+                }
+            }
+        )
+    }
+
     Divider(modifier = Modifier.fillMaxWidth())
     Row(
         modifier = Modifier
@@ -34,12 +68,22 @@ internal fun NavigationButtons(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(onClick = onPreviousClick, enabled = !loading) {
+            IconButton(onClick = { onExplicitNavigate(currentPage - 1) }, enabled = !loading) {
                 Icon(Icons.Filled.SkipPrevious, contentDescription = "Предыдущая страница")
             }
         }
         Column(
-            modifier = Modifier.fillMaxHeight(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(horizontal = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(
+                    enabled = !loading,
+                    onClick = {
+                        dialogVisible = true
+                    }
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -52,7 +96,7 @@ internal fun NavigationButtons(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(onClick = onNextClick, enabled = !loading) {
+            IconButton(onClick = { onExplicitNavigate(currentPage + 1) }, enabled = !loading) {
                 Icon(Icons.Filled.SkipNext, contentDescription = "Следующая страница")
             }
         }
