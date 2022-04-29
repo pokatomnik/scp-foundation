@@ -1,10 +1,12 @@
 package tk.pokatomnik.scpfoundation.features.pageslist
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,13 +26,20 @@ fun PagesList(
 ) {
     val state = LocalPagesList.current
     val scrollRefreshState = rememberSwipeRefreshState(state.loading)
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(state.pageNumber) {
+        if (state.pagedResponse?.pages?.size ?: 0 > 0) {
+            lazyListState.animateScrollToItem(0)
+        }
+    }
 
     SwipeRefresh(
         state = scrollRefreshState,
         onRefresh = state.forceRefresh,
         modifier = Modifier.fillMaxSize(),
         swipeEnabled = !state.loading,
-        indicatorPadding = PaddingValues(top = 80.dp)
+        indicatorPadding = PaddingValues(top = 80.dp),
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
@@ -49,7 +58,9 @@ fun PagesList(
             if (state.pagedResponse?.pages?.size == 0) {
                 // Display Empty message
                 Column(
-                    modifier = Modifier.fillMaxSize().weight(1f),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -63,6 +74,7 @@ fun PagesList(
                             pagedResponse = state.pagedResponse ?: PagedResponseImpl(),
                             onSelectPageInfo = onSelectPageInfo,
                             bottomText = bottomText,
+                            lazyListState = lazyListState,
                         )
                     }
                 }
