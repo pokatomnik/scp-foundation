@@ -1,6 +1,9 @@
 package tk.pokatomnik.scpfoundation.features.pageslist
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -25,6 +28,7 @@ internal fun LazyPagesList(
     pagedResponse: PagedResponse,
     onSelectPageInfo: (pageInfo: PageInfo) -> Unit,
     bottomText: (page: PageInfo) -> String?,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     val scope = rememberCoroutineScope()
     val favoritesState = remember { mutableStateListOf<String>() }
@@ -57,9 +61,13 @@ internal fun LazyPagesList(
         list = pagedResponse.pages,
         onClick = { onSelectPageInfo(it) },
         disabled = loading,
+        lazyListState = lazyListState
     ) {
         Row {
-            Column(modifier = Modifier.weight(1f).fillMaxSize(), verticalArrangement = Arrangement.Center) {
+            Column(modifier = Modifier
+                .weight(1f)
+                .fillMaxSize(), verticalArrangement = Arrangement.Center
+            ) {
                 Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                 bottomText(it)?.let {
                     Row {

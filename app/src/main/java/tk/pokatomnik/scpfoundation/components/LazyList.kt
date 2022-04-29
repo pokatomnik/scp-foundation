@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,9 +39,13 @@ fun <T : Any> LazyList(
     list: List<T>,
     onClick: (value: T) -> Unit,
     disabled: Boolean = false,
+    lazyListState: LazyListState = rememberLazyListState(),
     render: @Composable (value: T) -> Unit,
 ) {
-    LazyColumn(modifier = Modifier.scrollEnabled(!disabled)) {
+    LazyColumn(
+        modifier = Modifier.scrollEnabled(!disabled),
+        state = lazyListState
+    ) {
         items(list) {
             Row(
                 modifier = Modifier
