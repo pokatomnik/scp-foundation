@@ -15,8 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
+import tk.pokatomnik.scpfoundation.di.db.dao.recent.Recent
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
+import java.util.*
 
 @Composable
 fun Page(
@@ -40,6 +42,14 @@ fun Page(
             scope.launch {
                 val exists = database.favoritesDAO().existsByUrl(page.url)
                 setInFavorites(exists)
+            }
+        }
+    }
+
+    fun upsertAsRecent() {
+        page?.let {
+            scope.launch {
+                database.recentDAO().upsert(it.toRecent())
             }
         }
     }
@@ -93,6 +103,7 @@ fun Page(
                         },
                         onPageLoaded = {
                             setLoading(false)
+                            upsertAsRecent()
                         },
                         onPageStartLoading = {
                             setLoading(true)
