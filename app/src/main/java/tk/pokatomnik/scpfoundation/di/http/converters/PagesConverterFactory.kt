@@ -47,7 +47,7 @@ internal class PagesConverterFactory : Converter.Factory() {
             null
         }
         val author = try {
-            authorCell.select("span").select("a")[1].text()
+            authorCell.text()
         } catch (e: Exception) {
             null
         }
