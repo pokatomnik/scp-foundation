@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import tk.pokatomnik.scpfoundation.components.NumberPickerComponent
 
 @Composable
 internal fun NavigationButtons(
@@ -27,46 +28,37 @@ internal fun NavigationButtons(
     currentPage: Int,
     maxPage: Int,
 ) {
-    val context = LocalContext.current
     var dialogVisible by remember { mutableStateOf(false) }
-    var directPageNumberInput by remember { mutableStateOf(currentPage.toString()) }
+    var directPageNumberInput by remember { mutableStateOf(currentPage) }
 
-    fun handleNavigationDone() = try {
-        onExplicitNavigate(directPageNumberInput.toInt())
+    fun handleNavigationDone() {
+        onExplicitNavigate(directPageNumberInput)
         dialogVisible = false
-        directPageNumberInput = currentPage.toString()
-    } catch (e: Exception) {
-        Toast.makeText(context, "Введите целое число", Toast.LENGTH_SHORT).show()
     }
 
     if (dialogVisible) {
         AlertDialog(
             onDismissRequest = { dialogVisible = false },
+            title = {
+                Text(
+                    text = "Перейти к странице",
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .width(IntrinsicSize.Min)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Перейти к странице",
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Номер страницы") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { handleNavigationDone() }
-                        ),
-                        value = directPageNumberInput,
-                        onValueChange = { directPageNumberInput = it },
+                    NumberPickerComponent(
+                        max = maxPage,
+                        min = 1,
+                        onValueChange = { _, new ->
+                            directPageNumberInput = new
+                        }
                     )
                 }
             },
