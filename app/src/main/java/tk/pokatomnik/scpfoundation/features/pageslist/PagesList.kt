@@ -29,7 +29,7 @@ fun PagesList(
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(state.pageNumber) {
-        if (state.pagedResponse?.pages?.size ?: 0 > 0) {
+        if ((state.pagedResponse?.pages?.size ?: 0) > 0) {
             lazyListState.animateScrollToItem(0)
         }
     }

@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import tk.pokatomnik.scpfoundation.components.SCPNavItem
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
+import tk.pokatomnik.scpfoundation.features.menu.Menu
 import tk.pokatomnik.scpfoundation.features.page.Page
 import tk.pokatomnik.scpfoundation.features.pageslist.PagesList
 import tk.pokatomnik.scpfoundation.features.pagesproviders.HistoryPagesProvider
@@ -71,6 +72,12 @@ class MainActivity : ComponentActivity() {
                                 icon = Icons.Filled.Tag,
                                 contentDescription = "Теги",
                                 staticRoute = "tags"
+                            )
+                            SCPNavItem(
+                                navController = navController,
+                                icon = Icons.Filled.MoreHoriz,
+                                contentDescription = "Больше",
+                                staticRoute = "menu"
                             )
                         }
                     }
@@ -224,6 +231,11 @@ class MainActivity : ComponentActivity() {
                                         }
                                 }
                                 )
+                            }
+                            composable(
+                                route = "menu"
+                            ) {
+                                Menu()
                             }
                         }
                     }
