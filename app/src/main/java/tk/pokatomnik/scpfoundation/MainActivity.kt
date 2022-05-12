@@ -20,6 +20,8 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import tk.pokatomnik.scpfoundation.components.SCPNavItem
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
+import tk.pokatomnik.scpfoundation.features.classes.ObjectClasses
+import tk.pokatomnik.scpfoundation.features.faq.FAQ
 import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.features.menu.Menu
 import tk.pokatomnik.scpfoundation.features.page.Page
@@ -98,12 +100,10 @@ class MainActivity : ComponentActivity() {
                                         emptyText = "Нет документов на этой странице",
                                         bottomText = { it.author ?: "(Автор неизвестен)" },
                                         onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                            val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                serializeToURLFriendly(it.name)
+                                            }"
                                             navController.navigate(route) {
-//                                                Disable "back to home" navigation
-//                                                popUpTo(navController.graph.findStartDestination().id) {
-//                                                    saveState = true
-//                                                }
                                                 launchSingleTop = true
                                             }
                                         },
@@ -127,12 +127,10 @@ class MainActivity : ComponentActivity() {
                                         emptyText = "Нет документов по выбранным тегам",
                                         bottomText = { null },
                                         onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                            val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                serializeToURLFriendly(it.name)
+                                            }"
                                             navController.navigate(route) {
-//                                                    Disable "back to home" navigation
-//                                                    popUpTo(navController.graph.findStartDestination().id) {
-//                                                        saveState = true
-//                                                    }
                                                 launchSingleTop = true
                                             }
                                         }
@@ -141,12 +139,10 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(route = "favorites") {
                                 FavoritesList(onSelectPageInfo = {
-                                    val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                    val route = "page/${serializeToURLFriendly(it.url)}/${
+                                        serializeToURLFriendly(it.name)
+                                    }"
                                     navController.navigate(route) {
-//                                            Disable "back to home" navigation
-//                                            popUpTo(navController.graph.findStartDestination().id) {
-//                                                saveState = true
-//                                            }
                                         launchSingleTop = true
                                     }
                                 })
@@ -159,12 +155,10 @@ class MainActivity : ComponentActivity() {
                                         bottomText = { null },
                                         hideNavigation = true,
                                         onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                            val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                serializeToURLFriendly(it.name)
+                                            }"
                                             navController.navigate(route) {
-//                                                Disable "back to home" navigation
-//                                                popUpTo(navController.graph.findStartDestination().id) {
-//                                                    saveState = true
-//                                                }
                                                 launchSingleTop = true
                                             }
                                         }
@@ -178,12 +172,10 @@ class MainActivity : ComponentActivity() {
                                         emptyText = "Нет документов на этой странице",
                                         bottomText = { it.author ?: "(Автор неизвестен)" },
                                         onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${serializeToURLFriendly(it.name)}"
+                                            val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                serializeToURLFriendly(it.name)
+                                            }"
                                             navController.navigate(route) {
-//                                                Disable "back to home" navigation
-//                                                popUpTo(navController.graph.findStartDestination().id) {
-//                                                    saveState = true
-//                                                }
                                                 launchSingleTop = true
                                             }
                                         },
@@ -209,7 +201,13 @@ class MainActivity : ComponentActivity() {
                                     deserializeFromURLFriendly(it)
                                 }
                                 val pageInfo = if (url != null && name != null) {
-                                    PageInfoImpl(name = name, url = url, date = null, rating = null, author = null)
+                                    PageInfoImpl(
+                                        name = name,
+                                        url = url,
+                                        date = null,
+                                        rating = null,
+                                        author = null
+                                    )
                                 } else null
                                 Page(
                                     page = pageInfo,
@@ -220,22 +218,35 @@ class MainActivity : ComponentActivity() {
                                 route = "tags"
                             ) {
                                 Tags(onSelectTags = {
-                                    val tagsSerialized = serializeToURLFriendly(it.joinToString("|"))
+                                    val tagsSerialized =
+                                        serializeToURLFriendly(it.joinToString("|"))
                                     navController
                                         .navigate("pagesByTags/${tagsSerialized}") {
-//                                                Disable "back to home" navigation
-//                                                popUpTo(navController.graph.findStartDestination().id) {
-//                                                    saveState = true
-//                                                }
                                             launchSingleTop = true
                                         }
-                                }
-                                )
+                                })
                             }
                             composable(
                                 route = "menu"
                             ) {
-                                Menu()
+                                Menu(
+                                    onNavigateToObjectClasses = {
+                                        navController.navigate("objectClasses") {
+                                            launchSingleTop = true
+                                        }
+                                    },
+                                    onNavigateToFAQ = {
+                                        navController.navigate("faq") {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            }
+                            composable(route = "faq") {
+                                FAQ()
+                            }
+                            composable(route = "objectClasses") {
+                                ObjectClasses()
                             }
                         }
                     }
