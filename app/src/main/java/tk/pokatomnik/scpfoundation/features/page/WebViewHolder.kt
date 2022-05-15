@@ -26,4 +26,12 @@ internal class WebViewHolder {
     fun reload() {
         _webView?.reload()
     }
+
+    fun findNext() {
+        _webView?.findNext(true)
+    }
+
+    fun searchViewAsync(textToSearch: String) {
+        _webView?.findAllAsync(textToSearch)
+    }
 }
