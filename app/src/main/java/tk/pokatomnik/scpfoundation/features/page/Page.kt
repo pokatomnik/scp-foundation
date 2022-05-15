@@ -1,24 +1,29 @@
 package tk.pokatomnik.scpfoundation.features.page
 
 import android.view.View
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
-import tk.pokatomnik.scpfoundation.di.db.dao.recent.Recent
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
-import java.util.*
 
 @Composable
 fun Page(
@@ -35,7 +40,13 @@ fun Page(
     val scrollRefreshState = rememberSwipeRefreshState(loading)
 
     val (buttonsBarVisible, setButtonsBarVisible) = remember { mutableStateOf(true) }
-    val heightAnimated = remember { Animatable(if (buttonsBarVisible) 64f else 0f) }
+    val actionsBarHeightAnimated by animateDpAsState(if (buttonsBarVisible) 64.dp else 0.dp)
+
+    val (searchVisible, setSearchVisible) = remember { mutableStateOf(false) }
+    val searchBarHeightAnimated by animateDpAsState(if (searchVisible) 56.dp else 0.dp)
+    val (searchText, setSearchText) = remember { mutableStateOf("") }
+    val searchFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalTextInputService.current
 
     LaunchedEffect(Unit) {
         page?.let { page ->
@@ -43,6 +54,20 @@ fun Page(
                 val exists = database.favoritesDAO().existsByUrl(page.url)
                 setInFavorites(exists)
             }
+        }
+    }
+
+    LaunchedEffect(searchText) {
+        webViewHolder.searchViewAsync(searchText)
+    }
+
+    LaunchedEffect(searchVisible) {
+        if (searchVisible) {
+            searchFocusRequester.requestFocus()
+            keyboardController?.showSoftwareKeyboard()
+        } else {
+            searchFocusRequester.freeFocus()
+            keyboardController?.hideSoftwareKeyboard()
         }
     }
 
@@ -72,10 +97,6 @@ fun Page(
         }
     }
 
-    LaunchedEffect(buttonsBarVisible) {
-        heightAnimated.animateTo(if (buttonsBarVisible) 64f else 0f)
-    }
-
     if (page == null) {
         return
     }
@@ -84,6 +105,32 @@ fun Page(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(searchBarHeightAnimated)
+        ) {
+            TextField(
+                maxLines = 1,
+                singleLine = true,
+                modifier = Modifier.focusRequester(searchFocusRequester).fillMaxSize(),
+                value = searchText,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = {
+                        webViewHolder.findNext()
+                    }
+                ),
+                onValueChange = {
+                    setSearchText(it)
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Строка поиска"
+                    )
+                })
+        }
         Row(modifier = Modifier.weight(1f)) {
             Box(modifier = Modifier.fillMaxSize(), Alignment.Center) {
                 SwipeRefresh(
@@ -117,8 +164,8 @@ fun Page(
         }
         Column(
             modifier = Modifier
-                .height(heightAnimated.value.dp)
-                .requiredHeight(heightAnimated.value.dp)
+                .height(actionsBarHeightAnimated)
+                .requiredHeight(actionsBarHeightAnimated)
         ) {
             Divider(modifier = Modifier.fillMaxWidth())
             Row {
@@ -169,6 +216,28 @@ fun Page(
                         Icon(
                             imageVector = if (inFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = if (inFavorites) "Удалить из избранного" else "Добавить в избранное"
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    IconButton(
+                        onClick = {
+                            val newSearchVisible = !searchVisible
+                            setSearchVisible(newSearchVisible)
+                            if (!newSearchVisible) {
+                                setSearchText("")
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (searchVisible) Icons.Filled.SearchOff else Icons.Filled.Search,
+                            contentDescription = if (searchVisible) "Скрыть поиск" else "Показать поиск"
                         )
                     }
                 }
