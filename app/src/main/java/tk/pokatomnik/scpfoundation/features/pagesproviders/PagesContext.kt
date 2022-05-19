@@ -4,7 +4,7 @@ import androidx.compose.runtime.compositionLocalOf
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 
-internal class ContextValue(
+internal class PagesPagination(
     val hasError: Boolean,
     val loading: Boolean,
     val pagedResponse: PagedResponse?,
@@ -14,7 +14,7 @@ internal class ContextValue(
 )
 
 internal val LocalPagesList = compositionLocalOf {
-    ContextValue(
+    PagesPagination(
         hasError = false,
         loading = false,
         pagedResponse = PagedResponseImpl(),

@@ -26,10 +26,7 @@ import tk.pokatomnik.scpfoundation.features.favorites.FavoritesList
 import tk.pokatomnik.scpfoundation.features.menu.Menu
 import tk.pokatomnik.scpfoundation.features.page.Page
 import tk.pokatomnik.scpfoundation.features.pageslist.PagesList
-import tk.pokatomnik.scpfoundation.features.pagesproviders.HistoryPagesProvider
-import tk.pokatomnik.scpfoundation.features.pagesproviders.LatestPagesProvider
-import tk.pokatomnik.scpfoundation.features.pagesproviders.MainPagesByRatingProvider
-import tk.pokatomnik.scpfoundation.features.pagesproviders.MainPagesByTagsProvider
+import tk.pokatomnik.scpfoundation.features.pagesproviders.*
 import tk.pokatomnik.scpfoundation.features.tags.Tags
 import tk.pokatomnik.scpfoundation.ui.theme.SCPFoundationTheme
 import tk.pokatomnik.scpfoundation.utils.deserializeFromURLFriendly
@@ -40,213 +37,215 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SCPFoundationTheme {
-                val navController = rememberNavController()
-                Scaffold(
-                    bottomBar = {
-                        BottomNavigation {
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.List,
-                                contentDescription = "Документы",
-                                staticRoute = "pages"
-                            )
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.FiberNew,
-                                contentDescription = "Новые документы",
-                                staticRoute = "latestPages"
-                            )
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.Favorite,
-                                contentDescription = "Избранное",
-                                staticRoute = "favorites"
-                            )
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.History,
-                                contentDescription = "История",
-                                staticRoute = "history"
-                            )
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.Tag,
-                                contentDescription = "Теги",
-                                staticRoute = "tags"
-                            )
-                            SCPNavItem(
-                                navController = navController,
-                                icon = Icons.Filled.MoreHoriz,
-                                contentDescription = "Больше",
-                                staticRoute = "menu"
-                            )
+            DeeplinkProvider(uri = intent.data) {
+                SCPFoundationTheme {
+                    val navController = rememberNavController()
+                    Scaffold(
+                        bottomBar = {
+                            BottomNavigation {
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.List,
+                                    contentDescription = "Документы",
+                                    staticRoute = "pages"
+                                )
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.FiberNew,
+                                    contentDescription = "Новые документы",
+                                    staticRoute = "latestPages"
+                                )
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.Favorite,
+                                    contentDescription = "Избранное",
+                                    staticRoute = "favorites"
+                                )
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.History,
+                                    contentDescription = "История",
+                                    staticRoute = "history"
+                                )
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.Tag,
+                                    contentDescription = "Теги",
+                                    staticRoute = "tags"
+                                )
+                                SCPNavItem(
+                                    navController = navController,
+                                    icon = Icons.Filled.MoreHoriz,
+                                    contentDescription = "Больше",
+                                    staticRoute = "menu"
+                                )
+                            }
                         }
-                    }
-                ) { innerPadding ->
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colors.background
-                    ) {
-                        NavHost(
-                            navController = navController,
-                            startDestination = "pages",
-                            Modifier.padding(innerPadding)
+                    ) { innerPadding ->
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colors.background
                         ) {
-                            composable(route = "pages") {
-                                MainPagesByRatingProvider {
-                                    PagesList(
-                                        title = "Список документов",
-                                        emptyText = "Нет документов на этой странице",
-                                        bottomText = { it.author ?: "(Автор неизвестен)" },
-                                        onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${
-                                                serializeToURLFriendly(it.name)
-                                            }"
-                                            navController.navigate(route) {
-                                                launchSingleTop = true
-                                            }
-                                        },
-                                    )
+                            NavHost(
+                                navController = navController,
+                                startDestination = "pages",
+                                Modifier.padding(innerPadding)
+                            ) {
+                                composable(route = "pages") {
+                                    MainPagesByRatingProvider {
+                                        PagesList(
+                                            title = "Список документов",
+                                            emptyText = "Нет документов на этой странице",
+                                            bottomText = { it.author ?: "(Автор неизвестен)" },
+                                            onSelectPageInfo = {
+                                                val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                    serializeToURLFriendly(it.name)
+                                                }"
+                                                navController.navigate(route) {
+                                                    launchSingleTop = true
+                                                }
+                                            },
+                                        )
+                                    }
                                 }
-                            }
-                            composable(
-                                route = "pagesByTags/{tags}",
-                                arguments = listOf(navArgument("tags") {
-                                    type = NavType.StringType
-                                })
-                            ) { backStackEntry ->
-                                val tags = deserializeFromURLFriendly(
-                                    backStackEntry.arguments?.getString("tags") ?: ""
-                                ).split("|").toTypedArray()
+                                composable(
+                                    route = "pagesByTags/{tags}",
+                                    arguments = listOf(navArgument("tags") {
+                                        type = NavType.StringType
+                                    })
+                                ) { backStackEntry ->
+                                    val tags = deserializeFromURLFriendly(
+                                        backStackEntry.arguments?.getString("tags") ?: ""
+                                    ).split("|").toTypedArray()
 
-                                MainPagesByTagsProvider(tags = tags) {
-                                    PagesList(
-                                        hideNavigation = true,
-                                        title = "По тегам",
-                                        emptyText = "Нет документов по выбранным тегам",
-                                        bottomText = { null },
-                                        onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${
-                                                serializeToURLFriendly(it.name)
-                                            }"
-                                            navController.navigate(route) {
-                                                launchSingleTop = true
+                                    MainPagesByTagsProvider(tags = tags) {
+                                        PagesList(
+                                            hideNavigation = true,
+                                            title = "По тегам",
+                                            emptyText = "Нет документов по выбранным тегам",
+                                            bottomText = { null },
+                                            onSelectPageInfo = {
+                                                val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                    serializeToURLFriendly(it.name)
+                                                }"
+                                                navController.navigate(route) {
+                                                    launchSingleTop = true
+                                                }
                                             }
-                                        }
-                                    )
-                                }
-                            }
-                            composable(route = "favorites") {
-                                FavoritesList(onSelectPageInfo = {
-                                    val route = "page/${serializeToURLFriendly(it.url)}/${
-                                        serializeToURLFriendly(it.name)
-                                    }"
-                                    navController.navigate(route) {
-                                        launchSingleTop = true
+                                        )
                                     }
-                                })
-                            }
-                            composable(route = "history") {
-                                HistoryPagesProvider {
-                                    PagesList(
-                                        title = "История",
-                                        emptyText = "В Истории пусто",
-                                        bottomText = { null },
-                                        hideNavigation = true,
-                                        onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${
-                                                serializeToURLFriendly(it.name)
-                                            }"
-                                            navController.navigate(route) {
-                                                launchSingleTop = true
+                                }
+                                composable(route = "favorites") {
+                                    FavoritesList(onSelectPageInfo = {
+                                        val route = "page/${serializeToURLFriendly(it.url)}/${
+                                            serializeToURLFriendly(it.name)
+                                        }"
+                                        navController.navigate(route) {
+                                            launchSingleTop = true
+                                        }
+                                    })
+                                }
+                                composable(route = "history") {
+                                    HistoryPagesProvider {
+                                        PagesList(
+                                            title = "История",
+                                            emptyText = "В Истории пусто",
+                                            bottomText = { null },
+                                            hideNavigation = true,
+                                            onSelectPageInfo = {
+                                                val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                    serializeToURLFriendly(it.name)
+                                                }"
+                                                navController.navigate(route) {
+                                                    launchSingleTop = true
+                                                }
                                             }
+                                        )
+                                    }
+                                }
+                                composable(route = "latestPages") {
+                                    LatestPagesProvider {
+                                        PagesList(
+                                            title = "Новые документы",
+                                            emptyText = "Нет документов на этой странице",
+                                            bottomText = { it.author ?: "(Автор неизвестен)" },
+                                            onSelectPageInfo = {
+                                                val route = "page/${serializeToURLFriendly(it.url)}/${
+                                                    serializeToURLFriendly(it.name)
+                                                }"
+                                                navController.navigate(route) {
+                                                    launchSingleTop = true
+                                                }
+                                            },
+                                        )
+                                    }
+                                }
+                                composable(
+                                    route = "page/{urlURLFriendly}/{nameURLFriendly}",
+                                    arguments = listOf(
+                                        navArgument("urlURLFriendly") {
+                                            type = NavType.StringType
+                                        },
+                                        navArgument("nameURLFriendly") {
+                                            type = NavType.StringType
                                         }
                                     )
+                                ) { backStackEntry ->
+                                    val arguments = backStackEntry.arguments
+                                    val url = arguments?.getString("urlURLFriendly")?.let {
+                                        deserializeFromURLFriendly(it)
+                                    }
+                                    val name = arguments?.getString("nameURLFriendly")?.let {
+                                        deserializeFromURLFriendly(it)
+                                    }
+                                    val pageInfo = if (url != null && name != null) {
+                                        PageInfoImpl(
+                                            name = name,
+                                            url = url,
+                                            date = null,
+                                            rating = null,
+                                            author = null
+                                        )
+                                    } else null
+                                    Page(
+                                        page = pageInfo,
+                                        navigateBack = { navController.popBackStack() }
+                                    )
                                 }
-                            }
-                            composable(route = "latestPages") {
-                                LatestPagesProvider {
-                                    PagesList(
-                                        title = "Новые документы",
-                                        emptyText = "Нет документов на этой странице",
-                                        bottomText = { it.author ?: "(Автор неизвестен)" },
-                                        onSelectPageInfo = {
-                                            val route = "page/${serializeToURLFriendly(it.url)}/${
-                                                serializeToURLFriendly(it.name)
-                                            }"
-                                            navController.navigate(route) {
+                                composable(
+                                    route = "tags"
+                                ) {
+                                    Tags(onSelectTags = {
+                                        val tagsSerialized =
+                                            serializeToURLFriendly(it.joinToString("|"))
+                                        navController
+                                            .navigate("pagesByTags/${tagsSerialized}") {
+                                                launchSingleTop = true
+                                            }
+                                    })
+                                }
+                                composable(
+                                    route = "menu"
+                                ) {
+                                    Menu(
+                                        onNavigateToObjectClasses = {
+                                            navController.navigate("objectClasses") {
                                                 launchSingleTop = true
                                             }
                                         },
+                                        onNavigateToFAQ = {
+                                            navController.navigate("faq") {
+                                                launchSingleTop = true
+                                            }
+                                        }
                                     )
                                 }
-                            }
-                            composable(
-                                route = "page/{urlURLFriendly}/{nameURLFriendly}",
-                                arguments = listOf(
-                                    navArgument("urlURLFriendly") {
-                                        type = NavType.StringType
-                                    },
-                                    navArgument("nameURLFriendly") {
-                                        type = NavType.StringType
-                                    }
-                                )
-                            ) { backStackEntry ->
-                                val arguments = backStackEntry.arguments
-                                val url = arguments?.getString("urlURLFriendly")?.let {
-                                    deserializeFromURLFriendly(it)
+                                composable(route = "faq") {
+                                    FAQ()
                                 }
-                                val name = arguments?.getString("nameURLFriendly")?.let {
-                                    deserializeFromURLFriendly(it)
+                                composable(route = "objectClasses") {
+                                    ObjectClasses()
                                 }
-                                val pageInfo = if (url != null && name != null) {
-                                    PageInfoImpl(
-                                        name = name,
-                                        url = url,
-                                        date = null,
-                                        rating = null,
-                                        author = null
-                                    )
-                                } else null
-                                Page(
-                                    page = pageInfo,
-                                    navigateBack = { navController.popBackStack() }
-                                )
-                            }
-                            composable(
-                                route = "tags"
-                            ) {
-                                Tags(onSelectTags = {
-                                    val tagsSerialized =
-                                        serializeToURLFriendly(it.joinToString("|"))
-                                    navController
-                                        .navigate("pagesByTags/${tagsSerialized}") {
-                                            launchSingleTop = true
-                                        }
-                                })
-                            }
-                            composable(
-                                route = "menu"
-                            ) {
-                                Menu(
-                                    onNavigateToObjectClasses = {
-                                        navController.navigate("objectClasses") {
-                                            launchSingleTop = true
-                                        }
-                                    },
-                                    onNavigateToFAQ = {
-                                        navController.navigate("faq") {
-                                            launchSingleTop = true
-                                        }
-                                    }
-                                )
-                            }
-                            composable(route = "faq") {
-                                FAQ()
-                            }
-                            composable(route = "objectClasses") {
-                                ObjectClasses()
                             }
                         }
                     }

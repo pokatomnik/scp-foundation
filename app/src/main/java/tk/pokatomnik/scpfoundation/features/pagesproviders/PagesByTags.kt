@@ -87,7 +87,7 @@ fun MainPagesByTagsProvider(
     }
 
     CompositionLocalProvider(
-        LocalPagesList provides ContextValue(
+        LocalPagesList provides PagesPagination(
             hasError = hasError,
             loading = loading,
             pagedResponse = pages,
