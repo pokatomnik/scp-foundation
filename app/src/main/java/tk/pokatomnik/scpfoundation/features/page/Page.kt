@@ -23,13 +23,15 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
-import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
+import tk.pokatomnik.scpfoundation.domain.PageInfo
+import tk.pokatomnik.scpfoundation.features.configuration.LocalConfiguration
 
 @Composable
 fun Page(
-    page: PageInfoImpl?,
+    page: PageInfo?,
     navigateBack: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
     val scope = rememberCoroutineScope()
     val database = rememberDatabase()
     val webViewHolder = remember { WebViewHolder() }
@@ -51,7 +53,7 @@ fun Page(
     LaunchedEffect(Unit) {
         page?.let { page ->
             scope.launch {
-                val exists = database.favoritesDAO().existsByUrl(page.url)
+                val exists = database.favoritesDAO().existsByName(page.name)
                 setInFavorites(exists)
             }
         }
@@ -92,7 +94,7 @@ fun Page(
         setInFavorites(false)
         page?.let { page ->
             scope.launch {
-                database.favoritesDAO().deleteByURL(page.url)
+                database.favoritesDAO().deleteByName(page.name)
             }
         }
     }
@@ -141,7 +143,7 @@ fun Page(
                     onRefresh = {}
                 ) {
                     WebViewComposable(
-                        url = page.url,
+                        url = configuration.resolveUrl(page.name),
                         css = css,
                         visibilityFlag = if (loading) {
                             View.INVISIBLE

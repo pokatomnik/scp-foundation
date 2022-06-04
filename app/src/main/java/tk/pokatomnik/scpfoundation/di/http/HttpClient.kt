@@ -4,34 +4,12 @@ import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import tk.pokatomnik.scpfoundation.di.http.converters.LatestPagesConverterFactory
-import tk.pokatomnik.scpfoundation.di.http.converters.PagesConverterFactory
-import tk.pokatomnik.scpfoundation.domain.PageByTagsImpl
+import tk.pokatomnik.scpfoundation.domain.Configuration
+import tk.pokatomnik.scpfoundation.domain.PageByTags
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
+import tk.pokatomnik.scpfoundation.domain.Tag
+import tk.pokatomnik.scpfoundation.utils.joinURLParts
 import java.util.concurrent.TimeUnit
-
-interface PagesService {
-    @GET("fragment%3Atop-rated-by-year-0/p/{pageNumber}")
-    fun listPages(@Path("pageNumber") pageNumber: Int): Call<PagedResponse>
-}
-
-interface TagsService {
-    @GET("_api/wikidot_tags_search/list?wiki=scp-ru")
-    fun listTags(): Call<List<String>>
-}
-
-interface PagesByTagsService {
-    @GET("_api/wikidot_tags_search/find?wiki=scp-ru")
-    fun listPagesByTags(@Query("tag") vararg tag: String): Call<List<PageByTagsImpl>>
-}
-
-interface LatestPagesService {
-    @GET("most-recently-created/p/{pageNumber}")
-    fun listPages(@Path("pageNumber") pageNumber: Int): Call<PagedResponse>
-}
 
 class HttpClient {
     private val okHttpClient = OkHttpClient.Builder()
@@ -40,40 +18,59 @@ class HttpClient {
         .writeTimeout(15, TimeUnit.SECONDS)
         .build()
 
-    private val pagesRetrofitClient = Retrofit
+    private val retrofitClient = Retrofit
         .Builder()
-        .baseUrl(WEBSITE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(PagesConverterFactory())
-        .build()
-
-    private val latestPagesRetrofitClient = Retrofit
-        .Builder()
-        .baseUrl(WEBSITE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(LatestPagesConverterFactory())
-        .build()
-
-    private val tagsRetrofitClient = Retrofit
-        .Builder()
-        .baseUrl(API_URL)
+        .baseUrl("https://scp-reader-api.vercel.app/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    private val pagesByTagsRetrofitClient = Retrofit
-        .Builder()
-        .baseUrl(API_URL)
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private val httpServiceAllDocuments: ApiServiceAllDocuments = retrofitClient.create(
+        ApiServiceAllDocuments::class.java
+    )
+    private val httpServiceRecentDocuments: ApiServiceRecentDocuments = retrofitClient.create(
+        ApiServiceRecentDocuments::class.java
+    )
+    private val httpServiceTags: ApiServiceTags = retrofitClient.create(
+        ApiServiceTags::class.java
+    )
+    private val httpServiceDocumentsByTags: ApiServiceDocumentsByTags = retrofitClient.create(
+        ApiServiceDocumentsByTags::class.java
+    )
+    private val httpServiceConfiguration: ApiServiceConfiguration = retrofitClient.create(
+        ApiServiceConfiguration::class.java
+    )
 
-    val pagesService = PagesServiceCachingDecorator(
+    private val allPagesService = CachingDecorator(
         object : DataFetchingService<Int, PagedResponse> {
-            private val client = pagesRetrofitClient.create(PagesService::class.java)
+            private fun getUrl(page: Int): String {
+                return joinURLParts("v1", "documents", "all", page.toString())
+            }
+            override fun getData(params: Int): Call<PagedResponse> {
+                return httpServiceAllDocuments.getAllDocumentsByPageNumber(getUrl(params))
+            }
+            override fun serializeParams(params: Int): String {
+                return params.toString()
+            }
+        }
+    )
+
+    fun getAllDocumentsByPageNumber(pageNumber: Int): Call<PagedResponse> {
+        return allPagesService.getData(pageNumber)
+    }
+
+    fun getAllDocumentsByPageNumberForce(pageNumber: Int): Call<PagedResponse> {
+        return allPagesService.getDataForce(pageNumber)
+    }
+
+    private val recentPagesService = CachingDecorator(
+        object : DataFetchingService<Int, PagedResponse> {
+            private fun getUrl(page: Int): String {
+                return joinURLParts("v1","documents", "recent", page.toString())
+            }
 
             override fun getData(params: Int): Call<PagedResponse> {
-                return client.listPages(params)
+                return httpServiceRecentDocuments.getRecentDocumentsByPageNumber(getUrl(params))
             }
 
             override fun serializeParams(params: Int): String {
@@ -82,26 +79,21 @@ class HttpClient {
         }
     )
 
-    val latestPagesService = PagesServiceCachingDecorator(
-        object : DataFetchingService<Int, PagedResponse> {
-            private val client = latestPagesRetrofitClient.create(LatestPagesService::class.java)
+    fun getRecentDocumentsByPageNumber(pageNumber: Int): Call<PagedResponse> {
+        return recentPagesService.getData(pageNumber)
+    }
 
-            override fun getData(params: Int): Call<PagedResponse> {
-                return client.listPages(params)
+    fun getRecentDocumentsByPageNumberForce(pageNumber: Int): Call<PagedResponse> {
+        return recentPagesService.getDataForce(pageNumber)
+    }
+
+    private val tagsService = CachingDecorator(
+        object : DataFetchingService<Unit, List<Tag>> {
+            private fun getUrl(): String {
+                return joinURLParts("v1", "tags")
             }
-
-            override fun serializeParams(params: Int): String {
-                return params.toString()
-            }
-        }
-    )
-
-    val tagsService = PagesServiceCachingDecorator(
-        object : DataFetchingService<Unit, List<String>> {
-            private val client = tagsRetrofitClient.create(TagsService::class.java)
-
-            override fun getData(params: Unit): Call<List<String>> {
-                return client.listTags()
+            override fun getData(params: Unit): Call<List<Tag>> {
+                return httpServiceTags.getAllTags(getUrl())
             }
 
             override fun serializeParams(params: Unit): String {
@@ -110,22 +102,61 @@ class HttpClient {
         }
     )
 
-    val pagesByTagsService = PagesServiceCachingDecorator(
-        object : DataFetchingService<Array<String>, List<PageByTagsImpl>> {
-            private val client = pagesByTagsRetrofitClient.create(PagesByTagsService::class.java)
+    fun getAllTags(): Call<List<Tag>> {
+        return tagsService.getData(Unit)
+    }
 
-            override fun getData(params: Array<String>): Call<List<PageByTagsImpl>> {
-                return client.listPagesByTags(*params)
+    fun getAllTagsForce(): Call<List<Tag>> {
+        return tagsService.getDataForce(Unit)
+    }
+
+    private val documentsByTagsService = CachingDecorator(
+        object : DataFetchingService<Array<String>, List<PageByTags>> {
+            private fun joinTags(tags: Array<String>): String {
+                return tags.joinToString("|")
             }
 
+            private fun getUrl(tags: Array<String>): String {
+                val tagsJoined = joinTags(tags)
+                return joinURLParts("v1", "documents", "tags", tagsJoined)
+            }
+
+            override fun getData(params: Array<String>): Call<List<PageByTags>> {
+                return httpServiceDocumentsByTags.getDocumentsByTags(getUrl(params))
+            }
             override fun serializeParams(params: Array<String>): String {
-                return params.joinToString("|")
+                return joinTags(params)
             }
         }
     )
 
-    companion object {
-        const val WEBSITE_URL = "http://scp-ru.wikidot.com/"
-        private const val API_URL = "https://m.scpfoundation.net/"
+    fun getDocumentsByTags(tags: Array<String>): Call<List<PageByTags>> {
+        return documentsByTagsService.getData(tags)
+    }
+
+    fun getDocumentsByTagsForce(tags: Array<String>): Call<List<PageByTags>> {
+        return documentsByTagsService.getDataForce(tags)
+    }
+
+    private val configurationService = CachingDecorator(
+        object : DataFetchingService<Unit, Configuration> {
+            private fun getUrl(): String {
+                return joinURLParts("v1", "configuration")
+            }
+            override fun getData(params: Unit): Call<Configuration> {
+                return httpServiceConfiguration.getConfiguration(getUrl())
+            }
+            override fun serializeParams(params: Unit): String {
+                return "SINGLE"
+            }
+        }
+    )
+
+    fun getConfiguration(): Call<Configuration> {
+        return configurationService.getData(Unit)
+    }
+
+    fun getConfigurationForce(): Call<Configuration> {
+        return configurationService.getDataForce(Unit)
     }
 }

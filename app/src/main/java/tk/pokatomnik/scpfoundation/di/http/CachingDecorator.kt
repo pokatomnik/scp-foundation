@@ -20,10 +20,10 @@ interface DataFetchingCachingService<P : Any, R : Any> : DataFetchingService<P, 
     fun getDataForce(params: P): Call<R>
 }
 
-class PagesServiceCachingDecorator<P: Any, R : Any>(
+class CachingDecorator<P: Any, R : Any>(
     private val dataFetchingService: DataFetchingService<P, R>,
 ) : DataFetchingCachingService<P, R> {
-    private val pagesCache: MutableMap<String, OnResponseCallbackArgs<R>> = ConcurrentHashMap()
+    private val cache: MutableMap<String, OnResponseCallbackArgs<R>> = ConcurrentHashMap()
 
     override fun getDataForce(params: P): Call<R> {
         val call = dataFetchingService.getData(params)
@@ -42,7 +42,7 @@ class PagesServiceCachingDecorator<P: Any, R : Any>(
                         call: Call<R>,
                         response: Response<R>
                     ) {
-                        pagesCache[serializeParams(params)] = OnResponseCallbackArgs(call, response)
+                        cache[serializeParams(params)] = OnResponseCallbackArgs(call, response)
                         callback.onResponse(call, response)
                     }
 
@@ -82,7 +82,7 @@ class PagesServiceCachingDecorator<P: Any, R : Any>(
             }
 
             override fun enqueue(callback: Callback<R>) {
-                val onResponseArgs = pagesCache[serializeParams(params)]
+                val onResponseArgs = cache[serializeParams(params)]
                 if (onResponseArgs != null) {
                     callback.onResponse(onResponseArgs.call, onResponseArgs.response)
                     return
@@ -92,7 +92,7 @@ class PagesServiceCachingDecorator<P: Any, R : Any>(
                         call: Call<R>,
                         response: Response<R>
                     ) {
-                        pagesCache[serializeParams(params)] = OnResponseCallbackArgs(call, response)
+                        cache[serializeParams(params)] = OnResponseCallbackArgs(call, response)
                         callback.onResponse(call, response)
                     }
 

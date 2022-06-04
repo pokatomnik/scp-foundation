@@ -26,6 +26,7 @@ import retrofit2.Response
 import tk.pokatomnik.scpfoundation.components.ChipComponent
 import tk.pokatomnik.scpfoundation.components.ChipComponentProps
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
+import tk.pokatomnik.scpfoundation.domain.Tag
 import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
 
 @Composable
@@ -52,22 +53,22 @@ fun Tags(onSelectTags: (tags: Set<String>) -> Unit) {
         setLoadingState(true)
 
         val request = if (force) {
-            httpClient.tagsService.getDataForce(Unit)
+            httpClient.getAllTagsForce()
         } else {
-            httpClient.tagsService.getData(Unit)
+            httpClient.getAllTags()
         }
 
-        request.enqueue(object : Callback<List<String>> {
-            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
+        request.enqueue(object : Callback<List<Tag>> {
+            override fun onResponse(call: Call<List<Tag>>, response: Response<List<Tag>>) {
                 val pairs = (response.body() ?: listOf()).toSet()
                 tagsList.apply {
-                    setTagsList(pairs)
+                    setTagsList(pairs.map { it.name }.toSet())
                 }
                 setLoadingState(false)
                 setSelectedTags(setOf())
             }
 
-            override fun onFailure(call: Call<List<String>>, t: Throwable) {
+            override fun onFailure(call: Call<List<Tag>>, t: Throwable) {
                 Toast.makeText(
                     context,
                     "Невозможно загрузить список тегов, попробуйте позднее",

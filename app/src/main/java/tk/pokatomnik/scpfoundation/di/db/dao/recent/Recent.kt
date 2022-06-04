@@ -7,16 +7,16 @@ import tk.pokatomnik.scpfoundation.domain.PageInfo
 
 @Entity(tableName = "recent")
 data class Recent (
-    @ColumnInfo(name = "name") override val name: String,
-    @PrimaryKey @ColumnInfo(name = "url") override val url: String,
-    @ColumnInfo(name = "rating") override val rating: Int?,
-    @ColumnInfo(name = "author") override val author: String?,
-    @ColumnInfo(name = "date") override val date: String?,
+    @ColumnInfo(name = "name") val name: String,
+    @PrimaryKey @ColumnInfo(name = "title", defaultValue = "") val title: String,
+    @ColumnInfo(name = "rating") val rating: Int?,
+    @ColumnInfo(name = "author") val author: String?,
+    @ColumnInfo(name = "date") val date: String?,
     @ColumnInfo(name = "opened") val opened: Long
-) : PageInfo {
+) {
     constructor(pageInfo: PageInfo, opened: Long) : this(
         name = pageInfo.name,
-        url = pageInfo.url,
+        title = pageInfo.title,
         rating = pageInfo.rating,
         author = pageInfo.author,
         date = pageInfo.date,

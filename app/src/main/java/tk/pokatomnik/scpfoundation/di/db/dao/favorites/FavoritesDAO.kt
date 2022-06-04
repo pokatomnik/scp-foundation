@@ -7,15 +7,15 @@ interface FavoritesDAO {
     @Query("SELECT * FROM favorites")
     suspend fun getAll(): List<Favorite>
 
-    @Query("SELECT * FROM favorites WHERE url IN (:urls)")
-    suspend fun getByURLs(urls: Array<String>): List<Favorite>
+    @Query("SELECT * FROM favorites WHERE name IN (:names)")
+    suspend fun getByNames(names: Array<String>): List<Favorite>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun add(favorite: Favorite)
 
-    @Query("DELETE FROM favorites WHERE url = :url")
-    suspend fun deleteByURL(url: String)
+    @Query("DELETE FROM favorites WHERE name = :name")
+    suspend fun deleteByName(name: String)
 
-    @Query("SELECT EXISTS(SELECT * FROM favorites WHERE url = :url)")
-    suspend fun existsByUrl(url: String): Boolean
+    @Query("SELECT EXISTS(SELECT * FROM favorites WHERE name = :name)")
+    suspend fun existsByName(name: String): Boolean
 }
