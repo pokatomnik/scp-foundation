@@ -1,17 +1,16 @@
 package tk.pokatomnik.scpfoundation.domain
 
-import tk.pokatomnik.scpfoundation.di.http.HttpClient
-
-class PageByTagsImpl(
+data class PageByTags(
+    val all_tags: List<String>,
     val id: String,
-    val name: String,
     val matchedTags: Int,
+    val name: String,
     val title: String
 ) {
     fun toPage(): PageInfo {
-        return PageInfoImpl(
-            name = title,
-            url = "${HttpClient.WEBSITE_URL}${name}",
+        return PageInfo(
+            name = name,
+            title = title,
             rating = null,
             author = null,
             date = null

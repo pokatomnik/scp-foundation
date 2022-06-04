@@ -8,7 +8,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
-import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 
 @Composable
 fun LatestPagesProvider(
@@ -26,7 +25,7 @@ fun LatestPagesProvider(
     fun onExplicitNavigate(pageNumber: Int) {
         pages?.let { pages ->
             when {
-                pageNumber in pages.minPage..pages.maxPage -> setPageNumber(pageNumber)
+                pageNumber in 1..pages.maxPage -> setPageNumber(pageNumber)
                 pageNumber > pages.maxPage ->
                     Toast.makeText(context, "Это последняя страница", Toast.LENGTH_SHORT).show()
                 else -> Toast.makeText(context, "Это первая страница", Toast.LENGTH_SHORT).show()
@@ -45,9 +44,9 @@ fun LatestPagesProvider(
         setLoading(true)
 
         val request = if (force) {
-            httpClient.latestPagesService.getDataForce(pageNumber)
+            httpClient.getRecentDocumentsByPageNumberForce(pageNumber)
         } else {
-            httpClient.latestPagesService.getData(pageNumber)
+            httpClient.getRecentDocumentsByPageNumber(pageNumber)
         }
 
         request.enqueue(object : Callback<PagedResponse> {
@@ -55,14 +54,14 @@ fun LatestPagesProvider(
                 call: Call<PagedResponse>,
                 response: Response<PagedResponse>
             ) {
-                setPages(response.body() ?: PagedResponseImpl())
+                setPages(response.body() ?: PagedResponse())
                 setLoading(false)
             }
 
             override fun onFailure(call: Call<PagedResponse>, t: Throwable) {
                 setLoading(false)
                 setHasError(true)
-                setPages(PagedResponseImpl())
+                setPages(PagedResponse())
                 setPageNumber(1)
                 Toast.makeText(
                     context,

@@ -21,7 +21,6 @@ import tk.pokatomnik.scpfoundation.components.LazyList
 import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
-import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
 import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
 
 @Composable
@@ -39,7 +38,7 @@ fun FavoritesList(
     fun refresh() {
         scope.launch {
             val favorites: List<PageInfo> =
-                database.favoritesDAO().getAll().map { PageInfoImpl(it) }
+                database.favoritesDAO().getAll().map { PageInfo(it) }
             setPages(favorites)
         }
     }
@@ -50,24 +49,24 @@ fun FavoritesList(
 
     LaunchedEffect(pages) {
         scope.launch {
-            val ids = (pages ?: listOf()).map { it.url }.toTypedArray()
-            val favorites = database.favoritesDAO().getByURLs(ids)
-            val newFavoriteURLs = favorites.map { it.url }.toList()
+            val ids = (pages ?: listOf()).map { it.name }.toTypedArray()
+            val favorites = database.favoritesDAO().getByNames(ids)
+            val newFavoriteURLs = favorites.map { it.name }.toList()
             setFavoriteURLs(newFavoriteURLs)
         }
     }
 
     fun addFavorite(pageInfo: PageInfo) {
-        setFavoriteURLs(ArrayList<String>(favoriteURLs).apply { add(pageInfo.url) })
+        setFavoriteURLs(ArrayList<String>(favoriteURLs).apply { add(pageInfo.name) })
         scope.launch {
             database.favoritesDAO().add(Favorite(pageInfo))
         }
     }
 
     fun removeFavorite(pageInfo: PageInfo) {
-        setFavoriteURLs(ArrayList<String>(favoriteURLs).apply { remove(pageInfo.url) })
+        setFavoriteURLs(ArrayList<String>(favoriteURLs).apply { remove(pageInfo.name) })
         scope.launch {
-            database.favoritesDAO().deleteByURL(pageInfo.url)
+            database.favoritesDAO().deleteByName(pageInfo.name)
         }
     }
 
@@ -111,7 +110,7 @@ fun FavoritesList(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row {
                                         Text(
-                                            it.name,
+                                            it.title,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -138,14 +137,14 @@ fun FavoritesList(
                                                 .requiredWidth(48.dp)
                                                 .width(48.dp),
                                             onClick = {
-                                                if (favoriteURLs.contains(it.url)) {
+                                                if (favoriteURLs.contains(it.name)) {
                                                     removeFavorite(it)
                                                 } else {
                                                     addFavorite(it)
                                                 }
                                             }
                                         ) {
-                                            val icon = if (favoriteURLs.contains(it.url)) {
+                                            val icon = if (favoriteURLs.contains(it.name)) {
                                                 Icons.Filled.Favorite
                                             } else {
                                                 Icons.Filled.FavoriteBorder

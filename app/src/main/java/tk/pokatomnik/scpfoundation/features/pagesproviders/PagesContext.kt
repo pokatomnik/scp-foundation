@@ -2,7 +2,6 @@ package tk.pokatomnik.scpfoundation.features.pagesproviders
 
 import androidx.compose.runtime.compositionLocalOf
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
-import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 
 internal class ContextValue(
     val hasError: Boolean,
@@ -17,7 +16,7 @@ internal val LocalPagesList = compositionLocalOf {
     ContextValue(
         hasError = false,
         loading = false,
-        pagedResponse = PagedResponseImpl(),
+        pagedResponse = PagedResponse(),
         pageNumber = 0,
         onExplicitNavigate = {},
         forceRefresh = {}

@@ -1,7 +1,8 @@
 package tk.pokatomnik.scpfoundation.domain
 
-interface PagedResponse {
-    val pages: List<PageInfo>
-    val minPage: Int
+data class PagedResponse(
+    val documents: List<PageInfo>,
     val maxPage: Int
+) {
+    constructor() : this(listOf(), 1)
 }

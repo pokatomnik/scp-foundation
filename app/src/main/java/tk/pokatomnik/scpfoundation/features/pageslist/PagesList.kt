@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.domain.PageInfo
-import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
+import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.features.pagesproviders.LocalPagesList
 
 @Composable
@@ -29,7 +29,7 @@ fun PagesList(
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(state.pageNumber) {
-        if ((state.pagedResponse?.pages?.size ?: 0) > 0) {
+        if ((state.pagedResponse?.documents?.size ?: 0) > 0) {
             lazyListState.animateScrollToItem(0)
         }
     }
@@ -55,7 +55,7 @@ fun PagesList(
             ) {
                 PageTitle(title = title)
             }
-            if (state.pagedResponse?.pages?.size == 0) {
+            if (state.pagedResponse?.documents?.size == 0) {
                 // Display Empty message
                 Column(
                     modifier = Modifier
@@ -71,7 +71,7 @@ fun PagesList(
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyPagesList(
                             loading = state.loading,
-                            pagedResponse = state.pagedResponse ?: PagedResponseImpl(),
+                            pagedResponse = state.pagedResponse ?: PagedResponse(),
                             onSelectPageInfo = onSelectPageInfo,
                             bottomText = bottomText,
                             lazyListState = lazyListState,

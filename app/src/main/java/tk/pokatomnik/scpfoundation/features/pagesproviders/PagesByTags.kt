@@ -7,9 +7,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import tk.pokatomnik.scpfoundation.di.http.rememberHttpClient
-import tk.pokatomnik.scpfoundation.domain.PageByTagsImpl
+import tk.pokatomnik.scpfoundation.domain.PageByTags
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
-import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 
 @Composable
 fun MainPagesByTagsProvider(
@@ -37,32 +36,31 @@ fun MainPagesByTagsProvider(
         setLoading(true)
 
         val request = if (force) {
-            httpClient.pagesByTagsService.getDataForce(tags)
+            httpClient.getDocumentsByTagsForce(tags)
         } else {
-            httpClient.pagesByTagsService.getData(tags)
+            httpClient.getDocumentsByTags(tags)
         }
 
-        request.enqueue(object : Callback<List<PageByTagsImpl>> {
+        request.enqueue(object : Callback<List<PageByTags>> {
             override fun onResponse(
-                call: Call<List<PageByTagsImpl>>,
-                response: Response<List<PageByTagsImpl>>
+                call: Call<List<PageByTags>>,
+                response: Response<List<PageByTags>>
             ) {
                 val items = (response.body() ?: listOf())
                     .map { it.toPage() }
                     .sortedWith { a, b -> a.name.lowercase().compareTo(b.name.lowercase()) }
-                val pagedResponse = PagedResponseImpl(
+                val pagedResponse = PagedResponse(
                     maxPage = 1,
-                    minPage = 1,
-                    pages = items
+                    documents = items
                 )
                 setPages(pagedResponse)
                 setLoading(false)
             }
 
-            override fun onFailure(call: Call<List<PageByTagsImpl>>, t: Throwable) {
+            override fun onFailure(call: Call<List<PageByTags>>, t: Throwable) {
                 setLoading(false)
                 setHasError(true)
-                setPages(PagedResponseImpl())
+                setPages(PagedResponse())
                 Toast.makeText(
                     context,
                     "Ошибка загрузки документов, попробуйте позднее",

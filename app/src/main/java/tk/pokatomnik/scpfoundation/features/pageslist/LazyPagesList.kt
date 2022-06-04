@@ -3,7 +3,6 @@ package tk.pokatomnik.scpfoundation.features.pageslist
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -34,31 +33,31 @@ internal fun LazyPagesList(
     val favoritesState = remember { mutableStateListOf<String>() }
     val database = rememberDatabase()
 
-    LaunchedEffect(pagedResponse.pages) {
+    LaunchedEffect(pagedResponse.documents) {
         scope.launch {
-            val ids = pagedResponse.pages.map { it.url }.toTypedArray()
-            val favorites = database.favoritesDAO().getByURLs(ids)
-            favoritesState.addAll(favorites.map { it.url }.toList())
+            val ids = pagedResponse.documents.map { it.name }.toTypedArray()
+            val favorites = database.favoritesDAO().getByNames(ids)
+            favoritesState.addAll(favorites.map { it.name }.toList())
         }
     }
 
     fun addFavorite(pageInfo: PageInfo) {
-        favoritesState.add(pageInfo.url)
+        favoritesState.add(pageInfo.name)
         scope.launch {
             database.favoritesDAO().add(Favorite(pageInfo))
         }
     }
 
     fun removeFavorite(pageInfo: PageInfo) {
-        favoritesState.remove(pageInfo.url)
+        favoritesState.remove(pageInfo.name)
         scope.launch {
-            database.favoritesDAO().deleteByURL(pageInfo.url)
+            database.favoritesDAO().deleteByName(pageInfo.name)
         }
     }
 
 
     LazyList(
-        list = pagedResponse.pages,
+        list = pagedResponse.documents,
         onClick = { onSelectPageInfo(it) },
         disabled = loading,
         lazyListState = lazyListState
@@ -68,7 +67,7 @@ internal fun LazyPagesList(
                 .weight(1f)
                 .fillMaxSize(), verticalArrangement = Arrangement.Center
             ) {
-                Row { Text(it.name, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                Row { Text(it.title, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                 bottomText(it)?.let {
                     Row {
                         Text(
@@ -93,14 +92,14 @@ internal fun LazyPagesList(
                             .requiredWidth(48.dp)
                             .width(48.dp),
                         onClick = {
-                            if (favoritesState.contains(it.url)) {
+                            if (favoritesState.contains(it.name)) {
                                 removeFavorite(it)
                             } else {
                                 addFavorite(it)
                             }
                         }
                     ) {
-                        val icon = if (favoritesState.contains(it.url)) {
+                        val icon = if (favoritesState.contains(it.name)) {
                             Icons.Filled.Favorite
                         } else {
                             Icons.Filled.FavoriteBorder

@@ -3,9 +3,8 @@ package tk.pokatomnik.scpfoundation.features.pagesproviders
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
-import tk.pokatomnik.scpfoundation.domain.PageInfoImpl
+import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
-import tk.pokatomnik.scpfoundation.domain.PagedResponseImpl
 
 @Composable
 fun HistoryPagesProvider(
@@ -26,11 +25,10 @@ fun HistoryPagesProvider(
 
             try {
                 val favoritesList = database.recentDAO().getAll()
-                val pagesList = favoritesList.map { PageInfoImpl(it) }
+                val pagesList = favoritesList.map { PageInfo(it) }
                 setPages(
-                    PagedResponseImpl(
-                        pages = pagesList,
-                        minPage = 1,
+                    PagedResponse(
+                        documents = pagesList,
                         maxPage = 1
                     )
                 )

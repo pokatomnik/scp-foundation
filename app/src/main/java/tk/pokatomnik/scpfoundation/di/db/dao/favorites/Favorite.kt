@@ -8,16 +8,16 @@ import tk.pokatomnik.scpfoundation.domain.PageInfo
 @Entity(tableName = "favorites")
 data class Favorite(
     @PrimaryKey @ColumnInfo(name = "id") val id: Int?,
-    @ColumnInfo(name = "name") override val name: String,
-    @ColumnInfo(name = "url") override val url: String,
-    @ColumnInfo(name = "rating") override val rating: Int?,
-    @ColumnInfo(name = "author") override val author: String?,
-    @ColumnInfo(name = "date") override val date: String?
-) : PageInfo {
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "title", defaultValue = "") val title: String,
+    @ColumnInfo(name = "rating") val rating: Int?,
+    @ColumnInfo(name = "author") val author: String?,
+    @ColumnInfo(name = "date") val date: String?
+) {
     constructor(pageInfo: PageInfo) : this(
         id = null,
         name = pageInfo.name,
-        url = pageInfo.url,
+        title = pageInfo.title,
         rating = pageInfo.rating,
         author = pageInfo.author,
         date = pageInfo.date
