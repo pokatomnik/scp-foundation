@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import tk.pokatomnik.scpfoundation.components.LazyList
 import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
@@ -24,6 +24,7 @@ import tk.pokatomnik.scpfoundation.domain.PagedResponse
 @Composable
 internal fun LazyPagesList(
     loading: Boolean = false,
+    searchValue: String,
     pagedResponse: PagedResponse,
     onSelectPageInfo: (pageInfo: PageInfo) -> Unit,
     bottomText: (page: PageInfo) -> String?,
@@ -32,6 +33,25 @@ internal fun LazyPagesList(
     val scope = rememberCoroutineScope()
     val favoritesState = remember { mutableStateListOf<String>() }
     val database = rememberDatabase()
+
+    val (filteredDocuments, setFilteredDocuments) = remember {
+        mutableStateOf(pagedResponse.documents)
+    }
+
+    LaunchedEffect(pagedResponse.documents) {
+        setFilteredDocuments(pagedResponse.documents)
+    }
+
+    LaunchedEffect(searchValue, pagedResponse.documents) {
+        scope.launch {
+            val docs = filterPageInfos(
+                searchValue,
+                pagedResponse.documents,
+                scope
+            )
+            setFilteredDocuments(docs)
+        }
+    }
 
     LaunchedEffect(pagedResponse.documents) {
         scope.launch {
@@ -55,9 +75,8 @@ internal fun LazyPagesList(
         }
     }
 
-
     LazyList(
-        list = pagedResponse.documents,
+        list = filteredDocuments,
         onClick = { onSelectPageInfo(it) },
         disabled = loading,
         lazyListState = lazyListState
@@ -110,6 +129,27 @@ internal fun LazyPagesList(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+suspend fun filterPageInfos(
+    searchValue: String,
+    pageInfos: List<PageInfo>,
+    scope: CoroutineScope
+): List<PageInfo> {
+    return withContext(scope.coroutineContext) {
+        val searchValueClean = searchValue.trim()
+        if (searchValueClean.isBlank()) {
+            pageInfos
+        } else pageInfos.filter { pageInfo ->
+            val stringValues = listOf(
+                pageInfo.name.lowercase(),
+                pageInfo.title.lowercase(),
+            )
+            stringValues.any { strValue ->
+                strValue.contains(searchValueClean)
             }
         }
     }

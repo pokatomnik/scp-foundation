@@ -1,19 +1,25 @@
 package tk.pokatomnik.scpfoundation.features.pageslist
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.domain.PagedResponse
+import tk.pokatomnik.scpfoundation.features.inputfocusmanager.useInputFocusManager
 import tk.pokatomnik.scpfoundation.features.pagesproviders.LocalPagesList
 
 @Composable
@@ -27,10 +33,25 @@ fun PagesList(
     val state = LocalPagesList.current
     val scrollRefreshState = rememberSwipeRefreshState(state.loading)
     val lazyListState = rememberLazyListState()
+    val (searchInputDisplayed, setSearchInputDisplayed) = remember { mutableStateOf(false) }
+    val searchBarHeight by animateDpAsState(
+        targetValue = if (searchInputDisplayed) 56.dp else 0.dp
+    )
+    val inputFocusManager = useInputFocusManager()
+    val (searchValue, setSearchValue) = remember { mutableStateOf("") }
 
     LaunchedEffect(state.pageNumber) {
         if ((state.pagedResponse?.documents?.size ?: 0) > 0) {
             lazyListState.animateScrollToItem(0)
+        }
+    }
+
+    LaunchedEffect(searchInputDisplayed) {
+        setSearchValue("")
+        if (searchInputDisplayed) {
+            inputFocusManager.requestFocus()
+        } else {
+            inputFocusManager.freeFocus()
         }
     }
 
@@ -49,11 +70,45 @@ fun PagesList(
                 modifier = Modifier
                     .height(64.dp)
                     .requiredHeight(64.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                PageTitle(title = title)
+                Column(modifier = Modifier.weight(1f)) {
+                    PageTitle(title = title.uppercase())
+                }
+                Column {
+                    IconButton(
+                        onClick = {
+                            setSearchInputDisplayed(!searchInputDisplayed)
+                        },
+                        modifier = Modifier
+                            .requiredWidth(64.dp)
+                            .width(64.dp),
+                    ) {
+                        Icon(
+                            imageVector = if (searchInputDisplayed) Icons.Filled.SearchOff else Icons.Filled.Search,
+                            contentDescription = "Поиск"
+                        )
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .height(searchBarHeight)
+                    .requiredHeight(searchBarHeight)
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+            ) {
+                TextField(
+                    enabled = searchInputDisplayed,
+                    modifier = Modifier
+                        .focusRequester(inputFocusManager.focusRequester)
+                        .fillMaxSize(),
+                    value = searchValue,
+                    onValueChange = setSearchValue
+                )
             }
             if (state.pagedResponse?.documents?.size == 0) {
                 // Display Empty message
@@ -71,6 +126,7 @@ fun PagesList(
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyPagesList(
                             loading = state.loading,
+                            searchValue = searchValue,
                             pagedResponse = state.pagedResponse ?: PagedResponse(),
                             onSelectPageInfo = onSelectPageInfo,
                             bottomText = bottomText,
