@@ -14,9 +14,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -25,6 +23,7 @@ import kotlinx.coroutines.launch
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.features.configuration.LocalConfiguration
+import tk.pokatomnik.scpfoundation.features.inputfocusmanager.useInputFocusManager
 
 @Composable
 fun Page(
@@ -47,8 +46,7 @@ fun Page(
     val (searchVisible, setSearchVisible) = remember { mutableStateOf(false) }
     val searchBarHeightAnimated by animateDpAsState(if (searchVisible) 56.dp else 0.dp)
     val (searchText, setSearchText) = remember { mutableStateOf("") }
-    val searchFocusRequester = remember { FocusRequester() }
-    val keyboardController = LocalTextInputService.current
+    val inputFocusManager = useInputFocusManager()
 
     LaunchedEffect(Unit) {
         page?.let { page ->
@@ -65,11 +63,9 @@ fun Page(
 
     LaunchedEffect(searchVisible) {
         if (searchVisible) {
-            searchFocusRequester.requestFocus()
-            keyboardController?.showSoftwareKeyboard()
+            inputFocusManager.requestFocus()
         } else {
-            searchFocusRequester.freeFocus()
-            keyboardController?.hideSoftwareKeyboard()
+            inputFocusManager.freeFocus()
         }
     }
 
@@ -115,7 +111,9 @@ fun Page(
             TextField(
                 maxLines = 1,
                 singleLine = true,
-                modifier = Modifier.focusRequester(searchFocusRequester).fillMaxSize(),
+                modifier = Modifier
+                    .focusRequester(inputFocusManager.focusRequester)
+                    .fillMaxSize(),
                 value = searchText,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(

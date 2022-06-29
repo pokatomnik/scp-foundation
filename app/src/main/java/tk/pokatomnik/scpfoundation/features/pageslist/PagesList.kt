@@ -7,14 +7,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import tk.pokatomnik.scpfoundation.domain.PageInfo
-import tk.pokatomnik.scpfoundation.domain.PagedResponse
 import tk.pokatomnik.scpfoundation.features.pagesproviders.LocalPagesList
+import tk.pokatomnik.scpfoundation.features.search.SearchFeature
 
 @Composable
 fun PagesList(
@@ -34,57 +35,69 @@ fun PagesList(
         }
     }
 
-    SwipeRefresh(
-        state = scrollRefreshState,
-        onRefresh = state.forceRefresh,
-        modifier = Modifier.fillMaxSize(),
-        swipeEnabled = !state.loading,
-        indicatorPadding = PaddingValues(top = 80.dp),
-    ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+    SearchFeature(
+        pageInfos = state.pagedResponse?.documents ?: listOf(),
+        scope = rememberCoroutineScope()
+    ) { searchParams ->
+        SwipeRefresh(
+            state = scrollRefreshState,
+            onRefresh = state.forceRefresh,
+            modifier = Modifier.fillMaxSize(),
+            swipeEnabled = !state.loading,
+            indicatorPadding = PaddingValues(top = 80.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .height(64.dp)
-                    .requiredHeight(64.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
             ) {
-                PageTitle(title = title)
-            }
-            if (state.pagedResponse?.documents?.size == 0) {
-                // Display Empty message
-                Column(
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .height(64.dp)
+                        .requiredHeight(64.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(emptyText)
-                }
-            } else {
-                Row(modifier = Modifier.weight(1f)) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LazyPagesList(
-                            loading = state.loading,
-                            pagedResponse = state.pagedResponse ?: PagedResponse(),
-                            onSelectPageInfo = onSelectPageInfo,
-                            bottomText = bottomText,
-                            lazyListState = lazyListState,
-                        )
+                    Column(modifier = Modifier.weight(1f)) {
+                        PageTitle(title = title.uppercase())
+                    }
+                    Column {
+                        searchParams.SearchButton()
                     }
                 }
-                if (!hideNavigation) {
-                    NavigationButtons(
-                        currentPage = state.pageNumber,
-                        loading = state.loading,
-                        maxPage = state.pagedResponse?.maxPage ?: 1,
-                        onExplicitNavigate = state.onExplicitNavigate
-                    )
+                searchParams.SearchInputRow()
+                if (state.pagedResponse?.documents?.size == 0) {
+                    // Display Empty message
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(emptyText)
+                    }
+                } else {
+                    Row(modifier = Modifier.weight(1f)) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            LazyPagesList(
+                                loading = state.loading,
+                                pageInfos = searchParams.filteredPageInfos,
+                                onSelectPageInfo = onSelectPageInfo,
+                                bottomText = bottomText,
+                                lazyListState = lazyListState,
+                            )
+                        }
+                    }
+                    if (!hideNavigation) {
+                        NavigationButtons(
+                            currentPage = state.pageNumber,
+                            loading = state.loading,
+                            maxPage = state.pagedResponse?.maxPage ?: 1,
+                            onExplicitNavigate = state.onExplicitNavigate
+                        )
+                    }
                 }
             }
         }
