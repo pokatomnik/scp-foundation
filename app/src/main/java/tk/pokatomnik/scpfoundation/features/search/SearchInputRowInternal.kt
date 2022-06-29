@@ -1,7 +1,11 @@
 package tk.pokatomnik.scpfoundation.features.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,7 +34,16 @@ internal fun SearchInputRowInternal(
                 .focusRequester(focusRequester)
                 .fillMaxSize(),
             value = searchValue,
-            onValueChange = setSearchValue
+            onValueChange = setSearchValue,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = "Очистить",
+                    modifier = Modifier.clickable {
+                        setSearchValue("")
+                    }
+                )
+            }
         )
     }
 }
