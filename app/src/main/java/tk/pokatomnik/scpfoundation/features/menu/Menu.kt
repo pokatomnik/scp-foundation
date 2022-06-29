@@ -8,10 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.HdrStrong
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.LiveHelp
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tk.pokatomnik.scpfoundation.components.SCPCardWithPicture
+import tk.pokatomnik.scpfoundation.features.configuration.LocalConfiguration
 import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
 
 @Composable
@@ -30,10 +28,18 @@ fun Menu(
 ) {
     val context = LocalContext.current
     val (aboutDialogOpen, setAboutDialogOpen) = remember { mutableStateOf(false) }
+    val configuration = LocalConfiguration.current
 
     fun openSourceCodePage() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/pokatomnik/scp-foundation"))
         context.startActivity(intent)
+    }
+
+    fun writeEmail() {
+        configuration.contacts.email?.let {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("mailto:$it"))
+            context.startActivity(intent)
+        }
     }
 
     AboutDialog(open = aboutDialogOpen) {
@@ -112,6 +118,21 @@ fun Menu(
                 headerText = "Исходный код"
             ) {
                 Text("Приложения")
+            }
+            configuration.contacts.email?.let {
+                SCPCardWithPicture(
+                    onClick = { writeEmail() },
+                    picture = {
+                        Icon(
+                            modifier = Modifier.fillMaxSize(),
+                            imageVector = Icons.Outlined.ContactMail,
+                            contentDescription = it
+                        )
+                    },
+                    headerText = "Написать разработчику"
+                ) {
+                    Text(it)
+                }
             }
         }
     }
