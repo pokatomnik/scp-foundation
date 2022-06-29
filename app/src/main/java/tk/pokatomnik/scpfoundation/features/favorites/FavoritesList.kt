@@ -22,6 +22,7 @@ import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
 import tk.pokatomnik.scpfoundation.features.pageslist.PageTitle
+import tk.pokatomnik.scpfoundation.features.search.SearchFeature
 
 @Composable
 fun FavoritesList(
@@ -70,89 +71,98 @@ fun FavoritesList(
         }
     }
 
-    SwipeRefresh(
-        state = scrollRefreshState,
-        onRefresh = { refresh() },
-        modifier = Modifier.fillMaxSize(),
-        swipeEnabled = true
+    SearchFeature(pages ?: listOf(), scope) { searchParams ->
+        SwipeRefresh(
+            state = scrollRefreshState,
+            onRefresh = { refresh() },
+            modifier = Modifier.fillMaxSize(),
+            swipeEnabled = true
         ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .height(64.dp)
-                    .requiredHeight(64.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                PageTitle(title = "Избранное")
-            }
-            Row(modifier = Modifier.weight(1f)) {
-                if (pages?.size == 0) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text("В избранном пусто:(")
+                Row(
+                    modifier = Modifier
+                        .height(64.dp)
+                        .requiredHeight(64.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        PageTitle(title = "ИЗБРАННОЕ")
                     }
-                } else {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LazyList(
-                            list = pages ?: listOf(),
-                            onClick = { onSelectPageInfo(it) },
+                    Column {
+                        searchParams.SearchButton()
+                    }
+                }
+                searchParams.SearchInputRow()
+                Row(modifier = Modifier.weight(1f)) {
+                    if (pages?.size == 0) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Row {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row {
-                                        Text(
-                                            it.title,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    Row {
-                                        Text(
-                                            it.author ?: "(Автор неизвестен)",
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .requiredWidth(48.dp)
-                                        .width(48.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        IconButton(
-                                            modifier = Modifier
-                                                .requiredWidth(48.dp)
-                                                .width(48.dp),
-                                            onClick = {
-                                                if (favoriteURLs.contains(it.name)) {
-                                                    removeFavorite(it)
-                                                } else {
-                                                    addFavorite(it)
-                                                }
-                                            }
-                                        ) {
-                                            val icon = if (favoriteURLs.contains(it.name)) {
-                                                Icons.Filled.Favorite
-                                            } else {
-                                                Icons.Filled.FavoriteBorder
-                                            }
-                                            Icon(
-                                                imageVector = icon,
-                                                contentDescription = "В Избранное"
+                            Text("В избранном пусто:(")
+                        }
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            LazyList(
+                                list = searchParams.filteredPageInfos,
+                                onClick = { onSelectPageInfo(it) },
+                            ) {
+                                Row {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row {
+                                            Text(
+                                                it.title,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
                                             )
+                                        }
+                                        Row {
+                                            Text(
+                                                it.author ?: "(Автор неизвестен)",
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
+                                    Column(
+                                        modifier = Modifier
+                                            .requiredWidth(48.dp)
+                                            .width(48.dp)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            IconButton(
+                                                modifier = Modifier
+                                                    .requiredWidth(48.dp)
+                                                    .width(48.dp),
+                                                onClick = {
+                                                    if (favoriteURLs.contains(it.name)) {
+                                                        removeFavorite(it)
+                                                    } else {
+                                                        addFavorite(it)
+                                                    }
+                                                }
+                                            ) {
+                                                val icon = if (favoriteURLs.contains(it.name)) {
+                                                    Icons.Filled.Favorite
+                                                } else {
+                                                    Icons.Filled.FavoriteBorder
+                                                }
+                                                Icon(
+                                                    imageVector = icon,
+                                                    contentDescription = "В Избранное"
+                                                )
+                                            }
                                         }
                                     }
                                 }

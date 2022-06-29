@@ -14,18 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import tk.pokatomnik.scpfoundation.components.LazyList
 import tk.pokatomnik.scpfoundation.di.db.dao.favorites.Favorite
 import tk.pokatomnik.scpfoundation.di.db.rememberDatabase
 import tk.pokatomnik.scpfoundation.domain.PageInfo
-import tk.pokatomnik.scpfoundation.domain.PagedResponse
 
 @Composable
 internal fun LazyPagesList(
     loading: Boolean = false,
-    searchValue: String,
-    pagedResponse: PagedResponse,
+    pageInfos: List<PageInfo>,
     onSelectPageInfo: (pageInfo: PageInfo) -> Unit,
     bottomText: (page: PageInfo) -> String?,
     lazyListState: LazyListState = rememberLazyListState()
@@ -34,28 +32,9 @@ internal fun LazyPagesList(
     val favoritesState = remember { mutableStateListOf<String>() }
     val database = rememberDatabase()
 
-    val (filteredDocuments, setFilteredDocuments) = remember {
-        mutableStateOf(pagedResponse.documents)
-    }
-
-    LaunchedEffect(pagedResponse.documents) {
-        setFilteredDocuments(pagedResponse.documents)
-    }
-
-    LaunchedEffect(searchValue, pagedResponse.documents) {
+    LaunchedEffect(pageInfos) {
         scope.launch {
-            val docs = filterPageInfos(
-                searchValue,
-                pagedResponse.documents,
-                scope
-            )
-            setFilteredDocuments(docs)
-        }
-    }
-
-    LaunchedEffect(pagedResponse.documents) {
-        scope.launch {
-            val ids = pagedResponse.documents.map { it.name }.toTypedArray()
+            val ids = pageInfos.map { it.name }.toTypedArray()
             val favorites = database.favoritesDAO().getByNames(ids)
             favoritesState.addAll(favorites.map { it.name }.toList())
         }
@@ -76,7 +55,7 @@ internal fun LazyPagesList(
     }
 
     LazyList(
-        list = filteredDocuments,
+        list = pageInfos,
         onClick = { onSelectPageInfo(it) },
         disabled = loading,
         lazyListState = lazyListState
@@ -129,27 +108,6 @@ internal fun LazyPagesList(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-suspend fun filterPageInfos(
-    searchValue: String,
-    pageInfos: List<PageInfo>,
-    scope: CoroutineScope
-): List<PageInfo> {
-    return withContext(scope.coroutineContext) {
-        val searchValueClean = searchValue.trim()
-        if (searchValueClean.isBlank()) {
-            pageInfos
-        } else pageInfos.filter { pageInfo ->
-            val stringValues = listOf(
-                pageInfo.name.lowercase(),
-                pageInfo.title.lowercase(),
-            )
-            stringValues.any { strValue ->
-                strValue.contains(searchValueClean)
             }
         }
     }
