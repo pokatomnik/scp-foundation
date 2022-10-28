@@ -1,10 +1,7 @@
 name: Android CI
 
 on:
-  push:
-    branches: [ "dungeon-master" ]
-  pull_request:
-    branches: [ "dungeon-master" ]
+  workflow_dispatch:
 
 jobs:
   build:
